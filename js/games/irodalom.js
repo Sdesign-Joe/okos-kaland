@@ -163,7 +163,7 @@
       const q = { hu: 'Melyik szó hiányzik?', ro: 'Ce cuvânt lipsește?', en: 'Which word is missing?' }[lang];
       return {
         type: 'choice', key: it.a, prompt: q,
-        speak: q + ' ' + it.v.replace('___', '…').replace(/\n/g, ', '),
+        speak: q + ' ' + it.v.replace('___', '…').replace(/[,;]?\s*\n/g, ', '),
         big: `${GJ.pic(it.e)}<div class="poem">${html}</div><div class="source">— ${esc(it.s)}</div>`,
         options: options(it.a, others), answer: it.a, explain: it.s
       };

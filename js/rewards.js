@@ -167,24 +167,56 @@
 
   /* ---------- Felolvasás (a választott nyelv hangjával, ha a gépen elérhető) ---------- */
   const SPEECH = { hu: 'hu-HU', ro: 'ro-RO', en: 'en-GB' };
+  // macOS „játék” hangjai – gyerekeknek nem valók, kihagyjuk őket
+  const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|organ|superstar|trinoids|whisper|wobble|zarvox/i;
+  let VOICES = [];
+  const loadVoices = () => { try { VOICES = speechSynthesis.getVoices() || []; } catch (e) { VOICES = []; } return VOICES; };
+
+  /** A legjobb hang az adott nyelvre: pontos nyelv (pl. en-GB) > azonos nyelv (en-US); a jobb minőségűek előre */
+  function bestVoice(lang) {
+    const want = SPEECH[lang].toLowerCase();
+    const norm = v => String(v.lang || '').replace('_', '-').toLowerCase();
+    const cands = VOICES.filter(v => norm(v).slice(0, 2) === lang && !NOVELTY.test(v.name));
+    if (!cands.length) return null;
+    const score = v => (norm(v) === want ? 100 : 0) +
+      (/natural|neural|premium|enhanced|online/i.test(v.name) ? 20 : 0) +
+      (/google/i.test(v.name) ? 15 : 0) + (v.localService ? 5 : 0) + (v.default ? 1 : 0);
+    return cands.sort((x, y) => score(y) - score(x))[0];
+  }
+
+  const warned = {};
+  function say(text, lang) {
+    const ut = new SpeechSynthesisUtterance(text);
+    ut.lang = SPEECH[lang];
+    const v = bestVoice(lang);
+    if (v) ut.voice = v;
+    else if (VOICES.length) {
+      // Van hang a gépen, de ezen a nyelven nincs: rossz kiejtés helyett szólunk
+      if (!warned[lang]) { warned[lang] = true; GJ.toast(GJ.t('noVoice')); }
+      return;
+    }
+    // Ha a böngésző nem ad hanglistát (pl. egyes Androidok), a nyelv alapján a rendszerre bízzuk
+    ut.rate = 0.9; ut.pitch = 1.1;
+    speechSynthesis.speak(ut);
+  }
+
   GJ.speak = function (text) {
     if (!('speechSynthesis' in window) || !text) return;
     try {
       speechSynthesis.cancel();
       const lang = GJ.lang();
-      const ut = new SpeechSynthesisUtterance(text);
-      ut.lang = SPEECH[lang];
-      const voices = speechSynthesis.getVoices();
-      const v = voices.find(v => v.lang && v.lang.replace('_', '-') === SPEECH[lang]) ||
-        voices.find(v => v.lang && v.lang.toLowerCase().startsWith(lang));
-      if (v) ut.voice = v;
-      ut.rate = 0.9; ut.pitch = 1.1;
-      speechSynthesis.speak(ut);
+      if (loadVoices().length) return say(text, lang);
+      // A hanglista néha csak késve töltődik be (Chrome) – megvárjuk, legfeljebb 1 mp-ig
+      let done = false;
+      const go = () => { if (done) return; done = true; loadVoices(); say(text, lang); };
+      speechSynthesis.addEventListener('voiceschanged', go, { once: true });
+      setTimeout(go, 1000);
     } catch (e) { /* nincs felolvasás */ }
   };
+  GJ.hasVoice = lang => !!bestVoice(lang || GJ.lang());
   if ('speechSynthesis' in window) {
-    speechSynthesis.getVoices();
-    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    loadVoices();
+    try { speechSynthesis.addEventListener('voiceschanged', loadVoices); } catch (e) { speechSynthesis.onvoiceschanged = loadVoices; }
   }
 
   /* ---------- Konfetti ---------- */

@@ -42,7 +42,7 @@
       again: '🔁 Még egyszer', otherGame: '🎮 Másik játék', home: '🏠 Főoldal',
       albumLead: 'Minden befejezett körért matrica jár, hibátlan körért pedig ✨ritka✨ matrica!', rareLbl: 'ritka',
       gateText: 'Ez a rész a felnőtteknek szól. A belépéshez oldd meg:', gatePh: 'Eredmény', enter: 'Belépés', gateWrong: 'Ez nem jó. Próbáld újra!',
-      tPlayers: '👥 Játékosok', tCustom: '💝 Saját feladatok', tSettings: '⚙️ Beállítások', tHelp: '❔ Súgó', madeBy: 'Készítette:',
+      tPlayers: '👥 Játékosok', tCustom: '💝 Saját feladatok', tSettings: '⚙️ Beállítások', tHelp: '❔ Súgó', madeBy: 'Készítette:', noVoice: '🔇 Ezen az eszközön nincs magyar felolvasó hang. A Szülői sarok → Súgó részben leírom, hogyan lehet hozzáadni.',
       noPlayers: 'Még nincs játékos.', addPlayer: '➕ Új játékos', edit: '✏️ Szerkesztés', del: '🗑️ Törlés',
       summary: '⭐ {s} csillag · ✅ {d} megoldott feladat · 🏅 {k} matrica · 📖 {m} mese',
       thGame: 'Játék', thRounds: 'Körök', thBest: 'Legjobb', notPlayed: 'Még nem játszott.',
@@ -79,7 +79,8 @@
         '<b>Csillagok:</b> elsőre jó válasz 2 ⭐, másodikra 1 ⭐; 3 jó válasz egymás után +1 bónusz ⭐.',
         '<b>Matricák:</b> legalább félig jó kör után 1 matrica, hibátlan körért még egy ritka matrica + 3 ⭐.',
         '<b>Mesekészítő:</b> a gyerek döntései alakítják a hőst és a történetet, a feladatok eredménye a cselekményt. A kész mese a „Meséim” közé kerül.',
-        '<b>Nyelv:</b> magyar, román és angol, az adott nyelvhez illő feladatokkal.'
+        '<b>Nyelv:</b> magyar, román és angol, az adott nyelvhez illő feladatokkal.',
+        '<b>Felolvasás (🔊):</b> a készülék saját hangjait használja. Ha egy nyelven nincs hang, a program szól, és nem olvas fel rossz kiejtéssel. Hang hozzáadása: <b>Windows:</b> Gépház → Idő és nyelv → Beszéd → Hangok hozzáadása (pl. angol, román). <b>Android:</b> Beállítások → Kisegítő lehetőségek → Szövegfelolvasás → Google beszédszolgáltatás → hangadatok telepítése. <b>iPhone/iPad:</b> Beállítások → Kisegítő lehetőségek → Felolvasott tartalom → Hangok. Utána indítsd újra a böngészőt.'
       ],
       hExtTitle: 'Bővítés',
       hExt: 'Új kérdést legegyszerűbben a <b>Saját feladatok</b> fülön adhatsz hozzá. Új játékhoz, mesékhez vagy fordításokhoz lásd a <code>README.md</code> fájlt.',
@@ -128,7 +129,7 @@
       again: '🔁 Încă o dată', otherGame: '🎮 Alt joc', home: '🏠 Acasă',
       albumLead: 'Pentru fiecare rundă terminată primești un abțibild, iar pentru o rundă perfectă unul ✨rar✨!', rareLbl: 'rar',
       gateText: 'Această parte este pentru adulți. Ca să intri, rezolvă:', gatePh: 'Rezultat', enter: 'Intră', gateWrong: 'Nu e corect. Mai încearcă!',
-      tPlayers: '👥 Jucători', tCustom: '💝 Sarcini proprii', tSettings: '⚙️ Setări', tHelp: '❔ Ajutor', madeBy: 'Realizat de:',
+      tPlayers: '👥 Jucători', tCustom: '💝 Sarcini proprii', tSettings: '⚙️ Setări', tHelp: '❔ Ajutor', madeBy: 'Realizat de:', noVoice: '🔇 Pe acest dispozitiv nu există o voce în limba română. În Colțul părinților → Ajutor scrie cum se adaugă.',
       noPlayers: 'Încă nu există jucători.', addPlayer: '➕ Jucător nou', edit: '✏️ Editează', del: '🗑️ Șterge',
       summary: '⭐ {s} stele · ✅ {d} sarcini rezolvate · 🏅 {k} abțibilduri · 📖 {m} povești',
       thGame: 'Joc', thRounds: 'Runde', thBest: 'Record', notPlayed: 'Nu a jucat încă.',
@@ -165,7 +166,8 @@
         '<b>Stele:</b> răspuns corect din prima 2 ⭐, din a doua 1 ⭐; 3 răspunsuri corecte la rând +1 ⭐ bonus.',
         '<b>Abțibilduri:</b> 1 abțibild după o rundă cel puțin pe jumătate corectă, plus unul rar și 3 ⭐ pentru o rundă perfectă.',
         '<b>Povestea mea:</b> alegerile copilului schimbă eroul și povestea, iar rezultatul sarcinilor schimbă acțiunea. Povestea gata se salvează la „Poveștile mele”.',
-        '<b>Limba:</b> maghiară, română și engleză, cu sarcini potrivite fiecărei limbi.'
+        '<b>Limba:</b> maghiară, română și engleză, cu sarcini potrivite fiecărei limbi.',
+        '<b>Citire cu voce (🔊):</b> se folosesc vocile dispozitivului. Dacă pentru o limbă nu există voce, programul anunță și nu citește cu pronunție greșită. Adăugare voce: <b>Windows:</b> Setări → Oră și limbă → Vorbire → Adăugați voci (ex. română, engleză). <b>Android:</b> Setări → Accesibilitate → Redare text în vorbire → Serviciul vocal Google → instalați datele vocale. <b>iPhone/iPad:</b> Configurări → Accesibilitate → Conținut vorbit → Voci. Apoi reporniți browserul.'
       ],
       hExtTitle: 'Extindere',
       hExt: 'Cel mai simplu adaugi întrebări noi în fila <b>Sarcini proprii</b>. Pentru jocuri, povești sau traduceri noi, vezi fișierul <code>README.md</code>.',
@@ -214,7 +216,7 @@
       again: '🔁 Play again', otherGame: '🎮 Another game', home: '🏠 Home',
       albumLead: 'Every finished round earns a sticker, and a perfect round earns a ✨rare✨ one!', rareLbl: 'rare',
       gateText: 'This part is for grown-ups. To enter, solve:', gatePh: 'Answer', enter: 'Enter', gateWrong: 'Not quite. Try again!',
-      tPlayers: '👥 Players', tCustom: '💝 My questions', tSettings: '⚙️ Settings', tHelp: '❔ Help', madeBy: 'Made by:',
+      tPlayers: '👥 Players', tCustom: '💝 My questions', tSettings: '⚙️ Settings', tHelp: '❔ Help', madeBy: 'Made by:', noVoice: '🔇 There is no English reading voice on this device. See Parents’ corner → Help to add one.',
       noPlayers: 'No players yet.', addPlayer: '➕ New player', edit: '✏️ Edit', del: '🗑️ Delete',
       summary: '⭐ {s} stars · ✅ {d} tasks solved · 🏅 {k} stickers · 📖 {m} stories',
       thGame: 'Game', thRounds: 'Rounds', thBest: 'Best', notPlayed: "Hasn't played yet.",
@@ -251,7 +253,8 @@
         '<b>Stars:</b> right first time 2 ⭐, second time 1 ⭐; 3 correct in a row +1 bonus ⭐.',
         '<b>Stickers:</b> 1 sticker for a round at least half right, plus a rare one and 3 ⭐ for a perfect round.',
         "<b>Story maker:</b> the child's choices shape the hero and the story, and task results change the plot. Finished stories are saved in “My stories”.",
-        '<b>Language:</b> Hungarian, Romanian and English, with tasks suited to each language.'
+        '<b>Language:</b> Hungarian, Romanian and English, with tasks suited to each language.',
+        '<b>Read aloud (🔊):</b> uses the device’s own voices. If there is no voice for a language, the program tells you instead of reading with the wrong accent. To add a voice: <b>Windows:</b> Settings → Time & language → Speech → Add voices (e.g. English, Romanian). <b>Android:</b> Settings → Accessibility → Text-to-speech → Speech Services by Google → install voice data. <b>iPhone/iPad:</b> Settings → Accessibility → Spoken Content → Voices. Then restart the browser.'
       ],
       hExtTitle: 'Adding content',
       hExt: 'The easiest way to add questions is the <b>My questions</b> tab. For new games, stories or translations, see <code>README.md</code>.',
