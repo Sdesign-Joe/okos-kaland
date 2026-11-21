@@ -572,10 +572,10 @@
       .catch(() => GJ.toast(t('ttsErr'))).then(ttsStatus);
   }
   // ha felolvasnánk, de még nincs letöltve: egyszer (munkamenetenként) megkérdezzük
-  GJ.onTtsMissing = async lang => {
+  GJ.onTtsMissing = lang => {
     if (ttsAsked || layer.innerHTML) return;
     ttsAsked = true;
-    const n = await GJ.tts.sizeMB(lang) || 93;
+    const n = 90;   // motor (~30 MB) + hang (~60 MB) – azonnal kérdezünk, nem várunk a méret lekérdezésére
     modal(`<h3>${t('ttsAskT')}</h3><p>${t('ttsAsk', { n })}</p>
       <div class="row-btns"><button class="big-btn green small" data-m="ok">${t('ttsYes')}</button>
       <button class="big-btn blue small" data-m="no">${t('ttsLater')}</button></div>`, m => { if (m === 'ok') ttsStart(lang); });
