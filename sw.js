@@ -1,5 +1,5 @@
 /* Okos Kaland – service worker (automatikusan generálva: node tools/build-sw.js) */
-const CACHE = 'okos-kaland-202611211902';
+const CACHE = 'okos-kaland-202611211928';
 const FILES = ["./index.html",
   "./manifest.webmanifest",
   "./favicon.ico",
@@ -16,6 +16,7 @@ const FILES = ["./index.html",
   "./js/rewards.js",
   "./js/stats.js",
   "./js/storage.js",
+  "./js/tts.js",
   "./js/util.js",
   "./img/avatars/bear.webp",
   "./img/avatars/bunny.webp",
@@ -358,6 +359,8 @@ self.addEventListener('fetch', e => {
   // idegen címek (pl. a névtelen számláló) mindig a hálózatra mennek – kivéve a betűtípust
   const u = new URL(e.request.url);
   if (u.origin !== location.origin && !u.hostname.endsWith('fonts.googleapis.com') && !u.hostname.endsWith('fonts.gstatic.com')) return;
+  // a beépített felolvasó nagy fájljait (tts/) a program maga tárolja – itt nem másoljuk még egyszer
+  if (u.pathname.includes('/tts/')) return;
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(hit => hit || fetch(e.request).then(res => {
     if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy));

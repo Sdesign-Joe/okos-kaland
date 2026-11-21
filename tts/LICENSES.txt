@@ -1,0 +1,17 @@
+Okos Kaland – beépített felolvasó: felhasznált összetevők és licencek
+==================================================================
+
+ort/      ONNX Runtime Web 1.18.0 – Microsoft – MIT License
+          https://github.com/microsoft/onnxruntime
+
+piper/    piper_phonemize (WebAssembly build: @diffusionstudio/piper-wasm 1.0.0, MIT)
+          tartalmazza az espeak-ng kiejtési adatait – GPL-3.0
+          https://github.com/rhasspy/piper-phonemize
+          https://github.com/espeak-ng/espeak-ng
+
+voices/   Piper hangok – https://huggingface.co/rhasspy/piper-voices
+          hu_HU-anna-medium         – adatkészlet: OHF-Voice/voice-datasets – CC0
+          ro_RO-mihai-medium        – adatkészlet: OHF-Voice/voice-datasets – CC0
+          en_GB-jenny_dioco-medium  – adatkészlet: Jenny (Dioco) – https://github.com/dioco-group/jenny-tts-dataset
+                                      (a hang alapja: Jenny, Dioco – a feltételek az adatkészlet oldalán)
+          Részletek: voices/*.MODEL_CARD.txt

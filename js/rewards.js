@@ -184,35 +184,58 @@
     return cands.sort((x, y) => score(y) - score(x))[0];
   }
 
-  const warned = {};
   function say(text, lang) {
     const ut = new SpeechSynthesisUtterance(text);
     ut.lang = SPEECH[lang];
     const v = bestVoice(lang);
     if (v) ut.voice = v;
-    else if (VOICES.length) {
-      // Van hang a gépen, de ezen a nyelven nincs: rossz kiejtés helyett szólunk
-      if (!warned[lang]) { warned[lang] = true; GJ.toast(GJ.t('noVoice')); }
-      return;
-    }
+    else if (VOICES.length) return;   // rossz nyelvű hanggal nem olvasunk fel
     // Ha a böngésző nem ad hanglistát (pl. egyes Androidok), a nyelv alapján a rendszerre bízzuk
     ut.rate = 0.9; ut.pitch = 1.1;
     speechSynthesis.speak(ut);
   }
 
-  GJ.speak = function (text) {
-    if (!('speechSynthesis' in window) || !text) return;
-    try {
-      speechSynthesis.cancel();
-      const lang = GJ.lang();
-      if (loadVoices().length) return say(text, lang);
-      // A hanglista néha csak késve töltődik be (Chrome) – megvárjuk, legfeljebb 1 mp-ig
+  // a hanglista néha csak késve töltődik be (Chrome, Android) – megvárjuk, legfeljebb 1 mp-ig
+  function voicesReady() {
+    if (!('speechSynthesis' in window)) return Promise.resolve([]);
+    if (loadVoices().length) return Promise.resolve(VOICES);
+    return new Promise(res => {
       let done = false;
-      const go = () => { if (done) return; done = true; loadVoices(); say(text, lang); };
-      speechSynthesis.addEventListener('voiceschanged', go, { once: true });
-      setTimeout(go, 1000);
-    } catch (e) { /* nincs felolvasás */ }
+      const fin = () => { if (done) return; done = true; res(loadVoices()); };
+      try { speechSynthesis.addEventListener('voiceschanged', fin, { once: true }); } catch (e) { /* */ }
+      setTimeout(fin, 1000);
+    });
+  }
+  // használható-e a készülék saját hangja ezen a nyelven
+  // (az internetes hangok – pl. Chrome „Google …” – offline nem szólnak, ilyenkor nem számítanak)
+  function deviceVoice(lang) {
+    const v = bestVoice(lang);
+    return v && (v.localService !== false || navigator.onLine !== false) ? v : null;
+  }
+
+  let speakSeq = 0;
+  GJ.speak = async function (text) {
+    if (!text) return;
+    const my = ++speakSeq, lang = GJ.lang();
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* */ }
+    if (GJ.tts) GJ.tts.stop();
+    // 1) ha a készüléken van ilyen nyelvű hang, azt használjuk
+    await voicesReady();
+    if (my !== speakSeq) return;
+    if (deviceVoice(lang)) { try { say(text, lang); } catch (e) { /* */ } return; }
+    // 2) ha nincs: a program saját, beépített hangja (egyszer kell letölteni)
+    if (GJ.tts && GJ.tts.supported) {
+      if (await GJ.tts.speak(text, lang)) return;
+      if (my !== speakSeq) return;
+      if (GJ.tts.isDownloading(lang)) { GJ.toast(GJ.t('ttsWait')); return; }
+      if (GJ.onTtsMissing) { GJ.onTtsMissing(lang); return; }
+    }
+    // 3) a böngésző semmit nem tud: ha nem ad hanglistát (egyes Androidok), a rendszerre bízzuk
+    if (!VOICES.length && 'speechSynthesis' in window) { try { say(text, lang); } catch (e) { /* */ } }
+    else if (VOICES.length) GJ.toast(GJ.t('noVoice'));
   };
+  /** a készülék saját hangja van-e ezen a nyelven (a Beállítások ezt mutatja) */
+  GJ.deviceHasVoice = async lang => { await voicesReady(); return !!deviceVoice(lang || GJ.lang()); };
   GJ.hasVoice = lang => !!bestVoice(lang || GJ.lang());
   if ('speechSynthesis' in window) {
     loadVoices();

@@ -440,7 +440,7 @@
         </div>
         <div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${k === tab ? 'on' : ''}" data-go="parent" data-arg="${k}">${n}</button>`).join('')}</div>
         <div class="card panel">${parentTabs[tab]()}</div>
-      </div>`);
+      </div>`);      if (tab === 'settings') ttsStatus();
     }
   };
 
@@ -499,6 +499,10 @@
           <button class="toggle ${s.sound ? 'on' : ''}" data-act="toggleSet" data-k="sound"><i></i></button></div>
         <div class="set-row"><span>${t('sSpeak')}<br><small class="muted">${t('sSpeakNote')}</small></span>
           <button class="toggle ${s.autoSpeak ? 'on' : ''}" data-act="toggleSet" data-k="autoSpeak"><i></i></button></div>
+        <div class="set-row tts-row"><span>${t('sVoice')}<br><small class="muted">${t('sVoiceNote')}</small>
+            <span class="tts-bar" id="tts-bar" hidden><i></i></span></span>
+          <span class="tts-btns"><button class="mini-btn" data-act="ttsDownload" id="tts-btn" disabled>…</button>
+            <button class="link-btn inline tts-del" data-act="ttsRemove" id="tts-del" hidden>${t('ttsRemove')}</button></span></div>
         <div class="set-row"><span>${t('sRound')}</span>
           <div class="chips">${[5, 8, 10, 12].map(n => `<button class="chip ${s.roundLen === n ? 'on' : ''}" data-act="roundLen" data-v="${n}">${n}</button>`).join('')}</div></div>
         <h3>${t('sFamily')}</h3>
@@ -540,6 +544,41 @@
         <h3>${t('hExtTitle')}</h3><p>${t('hExt')}</p>
         ${madeBy()}`;
     }
+  };
+
+  /* ---------- Beépített felolvasó hang: letöltés / állapot ---------- */
+  let ttsAsked = false, ttsPct = 0;
+  async function ttsStatus() {
+    const btn = document.getElementById('tts-btn'); if (!btn || !GJ.tts) return;
+    const lang = GJ.lang(), del = document.getElementById('tts-del'), bar = document.getElementById('tts-bar');
+    if (!GJ.tts.supported) { btn.textContent = t('ttsNo'); btn.disabled = true; return; }
+    if (GJ.tts.isDownloading(lang)) {
+      btn.textContent = t('ttsDl', { p: Math.round(ttsPct * 100) }); btn.disabled = true;
+      bar.hidden = false; bar.firstElementChild.style.width = Math.round(ttsPct * 100) + '%'; del.hidden = true; return;
+    }
+    bar.hidden = true;
+    const ready = await GJ.tts.isReady(lang);
+    if (!ready && await GJ.deviceHasVoice(lang)) { btn.textContent = t('ttsDevice'); btn.disabled = true; del.hidden = true; return; }
+    if (ready) { btn.textContent = t('ttsReady'); btn.disabled = true; del.hidden = false; }
+    else { btn.textContent = t('ttsGet', { n: await GJ.tts.sizeMB(lang) || 93 }); btn.disabled = false; del.hidden = true; }
+  }
+  function ttsStart(lang) {
+    if (!GJ.tts || GJ.tts.isDownloading(lang)) return;
+    ttsPct = 0;
+    GJ.toast(t('ttsStarted'));
+    const p = GJ.tts.download(lang, x => { ttsPct = x; ttsStatus(); });
+    ttsStatus();
+    p.then(() => { GJ.toast(t('ttsDone')); GJ.track('felolvaso/' + lang, true); })
+      .catch(() => GJ.toast(t('ttsErr'))).then(ttsStatus);
+  }
+  // ha felolvasnánk, de még nincs letöltve: egyszer (munkamenetenként) megkérdezzük
+  GJ.onTtsMissing = async lang => {
+    if (ttsAsked || layer.innerHTML) return;
+    ttsAsked = true;
+    const n = await GJ.tts.sizeMB(lang) || 93;
+    modal(`<h3>${t('ttsAskT')}</h3><p>${t('ttsAsk', { n })}</p>
+      <div class="row-btns"><button class="big-btn green small" data-m="ok">${t('ttsYes')}</button>
+      <button class="big-btn blue small" data-m="no">${t('ttsLater')}</button></div>`, m => { if (m === 'ok') ttsStart(lang); });
   };
 
   /** „Készítette: BimPex” – a logó a bimpex.ro oldalra visz (új lapon) */
@@ -1098,6 +1137,8 @@
       const s = S.settings(); s.roundLen = +b.dataset.v; S.saveSettings(s);
       b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
     },
+    ttsDownload() { ttsStart(GJ.lang()); },
+    async ttsRemove() { if (GJ.tts) { await GJ.tts.remove(); GJ.toast(t('ttsRemoved')); ttsStatus(); } },
     toggleStats(b) { const s = S.settings(); s.stats = s.stats === false; S.saveSettings(s); b.classList.toggle('on', s.stats); },
     fbRate(b) { fbStars = +b.dataset.v; b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); },
     fbSend() {

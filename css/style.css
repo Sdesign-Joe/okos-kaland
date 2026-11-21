@@ -692,3 +692,12 @@ html, body { overflow-x: hidden; overscroll-behavior-x: none; }
 .made-by img { width: 130px; height: auto; display: block; }
 @media (hover: hover) { .made-by:hover { opacity: 1; background: rgba(255,255,255,.6); } }
 .made-by-row { width: 100%; flex-basis: 100%; display: flex; justify-content: center; }
+
+/* Beépített felolvasó hang */
+.tts-row { align-items: flex-start; gap: 12px; }
+.tts-btns { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; max-width: 46%; }
+.tts-btns .mini-btn { white-space: normal; text-align: center; }
+.tts-del { font-size: 14px; }
+.tts-bar { display: block; height: 8px; margin-top: 8px; border-radius: 6px; background: rgba(0,0,0,.08); overflow: hidden; }
+.tts-bar[hidden] { display: none; }
+.tts-bar i { display: block; height: 100%; width: 0; background: var(--green, #40c057); transition: width .3s; }
