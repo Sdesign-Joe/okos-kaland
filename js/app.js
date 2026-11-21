@@ -39,6 +39,13 @@
   let setup = null;      // nehézségválasztó állapota
   let gateAnswer = 0, parentOk = false;
   let installEvt = null;
+  /* Eszközfelismerés a telepítéshez (iPadOS asztali Macnek mutatja magát, ezért az érintéspontokat is nézzük) */
+  const ua = navigator.userAgent || '';
+  const IS_IOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IS_ANDROID = /Android/.test(ua);
+  const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  // gomb akkor látszik, ha a böngésző felajánlja a telepítést, vagy mobilon kézi útmutatót tudunk adni
+  const canInstall = () => !!installEvt || (!isStandalone() && location.protocol.startsWith('http') && (IS_IOS || IS_ANDROID));
   let fbStars = 0;          // visszajelzés csillagai   // a böngésző telepítési ajánlata (PWA)
   let timer = null;
   let cur = { name: 'profiles' };
@@ -145,7 +152,7 @@
     const n = tk.options.length, cols = tk.cols || (n === 3 ? 3 : 2);
     return `<div class="answers cols-${cols}">${tk.options.map((o, i) => {
       const lb = optLabel(tk, o);
-      return `<button class="ans pop ${lb.length <= 1 ? 'sym' : ''}" style="animation-delay:${i * 60}ms" data-act="${act}" data-i="${i}">${esc(lb)}</button>`;
+      return `<button class="ans pop ${/^[<>=.?!]$/.test(lb) ? 'sym' : ''}" style="animation-delay:${i * 60}ms" data-act="${act}" data-i="${i}">${esc(lb)}</button>`;
     }).join('')}</div>`;
   }
   const taskBody = tk => `
@@ -216,7 +223,7 @@
             <span class="pc-avatar">${ico('➕')}</span><span class="pc-name">${t('newPlayer')}</span>
           </button>
         </div>
-        ${installEvt ? `<button class="big-btn green small install-btn" data-act="install">${t('install')}</button>` : ''}
+        ${canInstall() ? `<button class="big-btn green small install-btn" data-act="install">${t('install')}</button>` : ''}
         <button class="link-btn" data-go="parentGate">${ico(t('parentCorner'))}</button>
       </div>`);
     },
@@ -506,7 +513,7 @@
           <button class="toggle ${s.stats !== false ? 'on' : ''}" data-act="toggleStats"><i></i></button></div>
         <h3>${t('sApp')}</h3>
         <p class="muted">${t('sAppNote')}</p>
-        ${installEvt ? `<button class="mini-btn" data-act="install">${t('install')}</button>` : ''}
+        ${canInstall() ? `<button class="mini-btn" data-act="install">${t('install')}</button>` : ''}
         <h3>${t('sBackup')}</h3>
         <p class="muted">${t('sBackupNote')}</p>
         <div class="row-btns left">
@@ -1097,7 +1104,14 @@
       GJ.toast(t('fbThanks'));
     },
     install() {
-      if (!installEvt) return;
+      if (!installEvt) {
+        // nincs automatikus telepítés (iPhone/iPad Safari, egyes Android-böngészők): képes útmutató
+        modal(`<img class="pp-img" src="img/icon-192.png" alt="">
+          <div class="pp-text">${t('install')}</div>
+          <div class="inst-steps">${IS_IOS ? t('instIOS') : t('instAndroid')}</div>
+          <button class="big-btn green" data-m="ok">${t('stOk')}</button>`);
+        return;
+      }
       installEvt.prompt();
       installEvt.userChoice.finally(() => { installEvt = null; go(cur.name, cur.arg); });
     },
