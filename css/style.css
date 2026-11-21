@@ -686,3 +686,9 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* iOS Safari: az animációk (felugró matrica, konfetti) közben se lehessen oldalra húzni az oldalt */
 html, body { overflow-x: hidden; overscroll-behavior-x: none; }
 .result, .story-screen { overflow-x: clip; }
+
+/* Készítette: BimPex */
+.made-by { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; margin: 26px auto 6px; padding: 8px 14px; border-radius: 14px; color: var(--ink-soft); font-size: 13px; font-weight: 700; text-decoration: none; opacity: .85; }
+.made-by img { width: 130px; height: auto; display: block; }
+@media (hover: hover) { .made-by:hover { opacity: 1; background: rgba(255,255,255,.6); } }
+.made-by-row { width: 100%; flex-basis: 100%; display: flex; justify-content: center; }

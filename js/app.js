@@ -225,6 +225,7 @@
         </div>
         ${canInstall() ? `<button class="big-btn green small install-btn" data-act="install">${t('install')}</button>` : ''}
         <button class="link-btn" data-go="parentGate">${ico(t('parentCorner'))}</button>
+        ${madeBy()}
       </div>`);
     },
 
@@ -536,9 +537,17 @@
     help() {
       return `<h3>${t('hTitle')}</h3>
         <ul class="help">${GJ.tl('hItems').map(x => `<li>${x}</li>`).join('')}</ul>
-        <h3>${t('hExtTitle')}</h3><p>${t('hExt')}</p>`;
+        <h3>${t('hExtTitle')}</h3><p>${t('hExt')}</p>
+        ${madeBy()}`;
     }
   };
+
+  /** „Készítette: BimPex” – a logó a bimpex.ro oldalra visz (új lapon) */
+  function madeBy() {
+    return `<div class="made-by-row"><a class="made-by" href="https://bimpex.ro/" target="_blank" rel="noopener">
+        <span>${t('madeBy')}</span><img src="img/bimpex-logo.webp" alt="BimPex" width="480" height="112">
+      </a></div>`;
+  }
 
   /* ==================================================================
      JÁTÉKKÖR

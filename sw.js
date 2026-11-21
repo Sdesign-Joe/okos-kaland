@@ -1,5 +1,5 @@
 /* Okos Kaland – service worker (automatikusan generálva: node tools/build-sw.js) */
-const CACHE = 'okos-kaland-202611211457';
+const CACHE = 'okos-kaland-202611211726';
 const FILES = ["./index.html",
   "./manifest.webmanifest",
   "./favicon.ico",
@@ -33,6 +33,7 @@ const FILES = ["./index.html",
   "./img/avatars/penguin.webp",
   "./img/avatars/tiger.webp",
   "./img/avatars/unicorn.webp",
+  "./img/bimpex-logo.webp",
   "./img/icon-180.png",
   "./img/icon-192.png",
   "./img/icon-32.png",
