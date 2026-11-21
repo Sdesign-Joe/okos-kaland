@@ -15,7 +15,7 @@
  */
 window.GJ = window.GJ || {};
 GJ.CONFIG = {
-  goatcounter: '',
+  goatcounter: 'okosland',
   feedbackEmail: '',
   feedbackForm: ''
 };
