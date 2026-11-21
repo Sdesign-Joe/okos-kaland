@@ -16,6 +16,6 @@
 window.GJ = window.GJ || {};
 GJ.CONFIG = {
   goatcounter: 'okosland',
-  feedbackEmail: '',
+  feedbackEmail: 'info@bimpex.ro',
   feedbackForm: ''
 };
