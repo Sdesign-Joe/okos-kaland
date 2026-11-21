@@ -271,12 +271,22 @@
     { id: 'en', name: 'English', speech: 'en' }
   ];
 
+  /** A böngésző/telefon nyelve alapján: magyar, román, egyébként angol */
+  GJ.browserLang = () => {
+    const list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || navigator.userLanguage || ''];
+    for (const x of list) {
+      const c = String(x).toLowerCase().slice(0, 2);
+      if (c === 'hu' || c === 'en') return c;
+      if (c === 'ro' || c === 'mo') return 'ro';
+    }
+    return 'en';
+  };
   GJ.lang = () => {
-    const l = GJ.store.settings().lang;
-    return D[l] ? l : 'hu';
+    const st = GJ.store.settings(); // a mentett nyelv csak akkor számít, ha a felhasználó maga választotta
+    return st.langChosen && D[st.lang] ? st.lang : GJ.browserLang();
   };
   GJ.setLang = l => {
-    const s = GJ.store.settings(); s.lang = D[l] ? l : 'hu'; GJ.store.saveSettings(s);
+    const s = GJ.store.settings(); s.lang = D[l] ? l : 'hu'; s.langChosen = true; GJ.store.saveSettings(s);
     document.documentElement.lang = s.lang;
     document.title = D[s.lang].appName;
   };

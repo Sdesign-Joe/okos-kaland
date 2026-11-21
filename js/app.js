@@ -1159,20 +1159,8 @@
   });
   window.addEventListener('appinstalled', () => { installEvt = null; GJ.toast(t('installed')); GJ.track('telepites', true); });
 
-  /* ---------- Indítókép (plakát) – alkalmazásonként egyszer, érintésre eltűnik ---------- */
-  function splash() {
-    const src = GJ.brand().poster;
-    let shown = false;
-    try { shown = sessionStorage.getItem('gj_splash') === '1'; sessionStorage.setItem('gj_splash', '1'); } catch (e) { /* nincs tároló */ }
-    if (!src || shown) return;
-    const el = document.createElement('div');
-    el.className = 'splash';
-    el.innerHTML = `<img src="${src}" alt="${esc(t('appName'))}"><span class="splash-tap">👆</span>`;
-    el.addEventListener('click', () => { GJ.sfx('sticker'); el.classList.add('out'); setTimeout(() => el.remove(), 450); });
-    document.body.appendChild(el);
-  }
-  splash();
   GJ.track('megnyitas/' + GJ.lang());
 
-  go(me() ? 'home' : 'profiles');
+  // Kezdőoldal mindig a plakátos „Ki játszik ma?” képernyő, a böngésző nyelvén
+  go('profiles');
 })();

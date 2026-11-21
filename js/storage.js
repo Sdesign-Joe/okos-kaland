@@ -17,7 +17,7 @@
     try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* nincs tároló */ }
   }
 
-  const DEFAULT_SETTINGS = { sound: true, autoSpeak: false, roundLen: 8, lang: 'hu' };
+  const DEFAULT_SETTINGS = { sound: true, autoSpeak: false, roundLen: 8 }; // a nyelvet első induláskor a böngésző nyelvéből választjuk (i18n.js)
 
   const store = {
     profiles() { return load('gj_profiles', []).map(p => store.fix(p)); },
