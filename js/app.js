@@ -45,7 +45,14 @@
   const IS_ANDROID = /Android/.test(ua);
   const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   // gomb akkor látszik, ha a böngésző felajánlja a telepítést, vagy mobilon kézi útmutatót tudunk adni
-  const canInstall = () => !!installEvt || (!isStandalone() && location.protocol.startsWith('http') && (IS_IOS || IS_ANDROID));
+  const IS_FIREFOX = /Firefox\//.test(ua), IS_SAMSUNG = /SamsungBrowser/.test(ua);
+  const IS_MAC_SAFARI = !IS_IOS && /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg\//.test(ua);
+  /** milyen eszköz / böngésző – ehhez igazítjuk a telepítési útmutatót */
+  const deviceKind = () => isStandalone() ? 'installed' : IS_IOS ? 'ios' : IS_ANDROID ? (IS_SAMSUNG ? 'samsung' : 'android')
+    : IS_FIREFOX ? 'firefox' : IS_MAC_SAFARI ? 'macSafari' : 'desktop';
+  // a gomb minden eszközön látszik (weboldalként megnyitva), amíg nincs telepítve; ahol nincs automatikus ajánlat, útmutatót ad
+  const canInstall = () => !!installEvt || (!isStandalone() && location.protocol.startsWith('http'));
+  const installGuide = () => { const k = deviceKind(); return `<p class="lbl">${t('instHere', { d: t('dev_' + k) })}</p><div class="inst-steps">${t('inst_' + k)}</div>`; };
   let fbStars = 0;          // visszajelzés csillagai   // a böngésző telepítési ajánlata (PWA)
   let timer = null;
   let cur = { name: 'profiles' };
@@ -545,7 +552,8 @@
           <button class="toggle ${s.stats !== false ? 'on' : ''}" data-act="toggleStats"><i></i></button></div>
         <h3>${t('sApp')}</h3>
         <p class="muted">${t('sAppNote')}</p>
-        ${canInstall() ? `<button class="mini-btn" data-act="install">${t('install')}</button>` : ''}
+        ${location.protocol.startsWith('http') || isStandalone() ? installGuide() : ''}
+        ${installEvt ? `<button class="mini-btn" data-act="install">${t('install')}</button>` : ''}
         <h3>${t('sBackup')}</h3>
         <p class="muted">${t('sBackupNote')}</p>
         <div class="row-btns left">
@@ -1210,7 +1218,7 @@
         // nincs automatikus telepítés (iPhone/iPad Safari, egyes Android-böngészők): képes útmutató
         modal(`<img class="pp-img" src="img/icon-192.png" alt="">
           <div class="pp-text">${t('install')}</div>
-          <div class="inst-steps">${IS_IOS ? t('instIOS') : t('instAndroid')}</div>
+          ${installGuide()}
           <button class="big-btn green" data-m="ok">${t('stOk')}</button>`);
         return;
       }

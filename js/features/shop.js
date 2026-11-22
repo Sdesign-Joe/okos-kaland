@@ -35,8 +35,28 @@
       { id: 'space', price: 60, n: { hu: 'Csillagos ég', ro: 'Cer înstelat', en: 'Starry sky' }, sw: ['#b9c4ff', '#d8c8ff', '#ffe3f1'] },
       { id: 'mint', price: 60, n: { hu: 'Mentafagyi', ro: 'Înghețată de mentă', en: 'Mint ice cream' }, sw: ['#c3fae8', '#e6fcf5', '#fff5f5'] }
     ],
-    owl: (GJ.SHOP_OWL || []),        // képek: img/shop/owl-<id>.webp
-    avatar: (GJ.SHOP_AVATAR || [])   // képek: img/shop/av-<id>.webp
+    // képek: img/shop/owl-<id>.webp
+    owl: [
+      { id: 'crown', price: 50, n: { hu: 'Királyi korona', ro: 'Coroană regală', en: 'Royal crown' } },
+      { id: 'pirate', price: 50, n: { hu: 'Kalóz', ro: 'Pirat', en: 'Pirate' } },
+      { id: 'chef', price: 50, n: { hu: 'Szakács', ro: 'Bucătar', en: 'Chef' } },
+      { id: 'explorer', price: 60, n: { hu: 'Felfedező', ro: 'Explorator', en: 'Explorer' } },
+      { id: 'princess', price: 70, n: { hu: 'Hercegnő', ro: 'Prințesă', en: 'Princess' } },
+      { id: 'wizard', price: 80, n: { hu: 'Varázsló', ro: 'Vrăjitor', en: 'Wizard' } },
+      { id: 'hero', price: 90, n: { hu: 'Szuperhős', ro: 'Supererou', en: 'Superhero' } },
+      { id: 'astronaut', price: 100, n: { hu: 'Űrhajós', ro: 'Astronaut', en: 'Astronaut' } }
+    ],
+    // képek: img/shop/av-<id>.webp – a játékos figurája lesz
+    avatar: [
+      { id: 'hedgehog', price: 40, n: { hu: 'Sün', ro: 'Arici', en: 'Hedgehog' } },
+      { id: 'sloth', price: 40, n: { hu: 'Lajhár', ro: 'Leneș', en: 'Sloth' } },
+      { id: 'octopus', price: 50, n: { hu: 'Polip', ro: 'Caracatiță', en: 'Octopus' } },
+      { id: 'dolphin', price: 50, n: { hu: 'Delfin', ro: 'Delfin', en: 'Dolphin' } },
+      { id: 'dino', price: 60, n: { hu: 'Dínó', ro: 'Dinozaur', en: 'Dino' } },
+      { id: 'robot', price: 70, n: { hu: 'Robot', ro: 'Robot', en: 'Robot' } },
+      { id: 'astrocat', price: 80, n: { hu: 'Űrhajós cica', ro: 'Pisică astronaut', en: 'Astro cat' } },
+      { id: 'dragon', price: 100, n: { hu: 'Sárkány', ro: 'Dragon', en: 'Dragon' } }
+    ]
   };
   const CATS = [['theme', 'shopThemes'], ['owl', 'shopOwl'], ['avatar', 'shopAv']];
   const itemImg = (cat, it) => (cat === 'owl' ? `img/shop/owl-${it.id}.webp` : cat === 'avatar' ? `img/shop/av-${it.id}.webp` : null);
