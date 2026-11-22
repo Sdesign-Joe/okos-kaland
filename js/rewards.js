@@ -260,6 +260,12 @@
     if (!VOICES.length && 'speechSynthesis' in window) { try { trySay(text, lang, null); } catch (e) { /* */ } }
     else if (VOICES.length) GJ.toast(GJ.t('noVoice'));
   };
+  /** Felolvasás azonnali leállítása (oldalváltáskor) – a még csak induló felolvasást is megszakítja */
+  GJ.stopSpeak = function () {
+    speakSeq++;
+    try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* */ }
+    try { if (GJ.tts) GJ.tts.stop(); } catch (e) { /* */ }
+  };
   /** a készülék saját hangja van-e ezen a nyelven (a Beállítások ezt mutatja) */
   GJ.deviceHasVoice = async lang => { await voicesReady(); return !!deviceVoice(lang || GJ.lang()); };
   GJ.hasVoice = lang => !!bestVoice(lang || GJ.lang());

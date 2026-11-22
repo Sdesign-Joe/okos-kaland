@@ -77,6 +77,7 @@
     return null;
   }
   function next() {
+    if (GJ.stopSpeak) GJ.stopSpeak();
     if (duel.q >= duel.total) return finish();
     const pl = duel.pl[duel.turn];
     duel.task = makeTask(pl); duel.lock = false;

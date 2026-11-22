@@ -68,6 +68,7 @@
   function render(html) { app.innerHTML = html; window.scrollTo(0, 0); }
   function go(name, arg) {
     stopTimer();
+    if (GJ.stopSpeak) GJ.stopSpeak();   // az előző oldal felolvasása ne szóljon tovább
     if (name !== 'play') round = null;
     if (name !== 'story') story = null;
     cur = { name, arg };
@@ -635,6 +636,7 @@
      ================================================================== */
   function nextTask() {
     const r = round; if (!r) return;
+    if (GJ.stopSpeak) GJ.stopSpeak();
     if (r.idx >= r.total) return finishRound();
     if (hook('gate', 'task').length) return;
     r.task = r.queue ? r.queue[r.idx] : GJ.makeTask(r.game, r.ctx, r.seen);
@@ -855,6 +857,7 @@
     if (!story) return;
     if (hook('gate', 'story').length) return;
     if (id.startsWith('@')) id = story.quest + '_' + id.slice(1);
+    if (GJ.stopSpeak) GJ.stopSpeak();
     const n = ST().nodes[id];
     if (!n) { console.warn('Hiányzó mese-csomópont:', id); return go('home'); }
     // visszalépéshez: az oldalra belépés előtti állapot
