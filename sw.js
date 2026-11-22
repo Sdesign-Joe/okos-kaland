@@ -1,5 +1,5 @@
 /* Okos Kaland – service worker (automatikusan generálva: node tools/build-sw.js) */
-const CACHE = 'okos-kaland-202611220739';
+const CACHE = 'okos-kaland-202611220744';
 const FILES = ["./index.html",
   "./ro.html",
   "./en.html",
