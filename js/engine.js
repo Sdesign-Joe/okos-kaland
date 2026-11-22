@@ -40,7 +40,7 @@
      Új játéknál megadható saját kép: GJ.register({ ..., img: 'img/ui/sajat.webp' }); ha nincs, az emoji (icon) látszik. */
   const GAME_IMG = ['osszeadas', 'szorzas', 'szamlalo', 'hasonlitas', 'sorozat', 'penz', 'ora', 'jly', 'helyesiras',
     'szotag', 'szokirako', 'betorend', 'ellentetek', 'irasjel', 'nagybetu', 'mesekeszito', 'mesek', 'versek', 'rimek', 'kozmondasok',
-    'szoveges', 'mertekegyseg', 'alakzatok', 'diktalas', 'olvasas', 'aai', 'ortograme', 'aan', 'plural'];
+    'szoveges', 'mertekegyseg', 'alakzatok', 'diktalas', 'olvasas', 'aai', 'ortograme', 'aan', 'plural', 'bolt', 'naptar', 'szorzosor', 'betuiras'];
 
   GJ.games = [];
   GJ.register = function (g) {

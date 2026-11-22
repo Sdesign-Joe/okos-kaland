@@ -46,7 +46,9 @@
       { id: 'princess', price: 70, n: { hu: 'Hercegnő', ro: 'Prințesă', en: 'Princess' } },
       { id: 'wizard', price: 80, n: { hu: 'Varázsló', ro: 'Vrăjitor', en: 'Wizard' } },
       { id: 'hero', price: 90, n: { hu: 'Szuperhős', ro: 'Supererou', en: 'Superhero' } },
-      { id: 'astronaut', price: 100, n: { hu: 'Űrhajós', ro: 'Astronaut', en: 'Astronaut' } }
+      { id: 'astronaut', price: 100, n: { hu: 'Űrhajós', ro: 'Astronaut', en: 'Astronaut' } },
+      // csak az adventi naptárból (dec. 24.)
+      { id: 'xmas', price: 0, special: true, n: { hu: 'Karácsonyi bagoly', ro: 'Bufnița de Crăciun', en: 'Christmas owl' } }
     ],
     // képek: img/shop/av-<id>.webp – a játékos figurája lesz
     avatar: [
@@ -65,7 +67,7 @@
    * A profil avatarja ilyenkor 'p:<figura>-<ruha>'. Tulajdon: owned.fit = ['hedgehog-crown', …]; utolsó ruha figuránként: equip.fit[<figura>]. */
   const figOf = p => { const a = String(p.avatar || ''); return a.startsWith('p:') ? a.slice(2).split('-')[0] : null; };
   const fitOf = p => { const a = String(p.avatar || ''); return a.startsWith('p:') ? (a.slice(2).split('-')[1] || 'none') : null; };
-  const fitList = fig => [{ id: 'none', price: 0, n: { hu: t('shopFitNone'), ro: t('shopFitNone'), en: t('shopFitNone') } }].concat(SHOP.owl);
+  const fitList = fig => [{ id: 'none', price: 0, n: { hu: t('shopFitNone'), ro: t('shopFitNone'), en: t('shopFitNone') } }].concat(SHOP.owl.filter(o => !o.special));
   const itemImg = (cat, it, fig) => (cat === 'owl' ? `img/shop/owl-${it.id}.webp` : cat === 'avatar' ? `img/shop/av-${it.id}.webp`
     : cat === 'fit' ? `img/shop/av-${fig}${it.id === 'none' ? '' : '-' + it.id}.webp` : null);
 

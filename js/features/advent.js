@@ -11,17 +11,17 @@
   GJ.addTexts({
     hu: { advBtn: '🎄 Adventi naptár', advT: '🎄 Adventi naptár', advSoon: 'December 1-jén nyílik az első ablak! Minden nap egy meglepetés vár. ✨',
       advLead: 'Teljesítsd a mai küldetést, és nyisd ki a mai ablakot!', advNeed: 'Előbb teljesítsd a mai küldetést! 🎯', advLocked: 'Ez az ablak még zárva van – december {d}. ⏳',
-      advStars: '+{n} ⭐', advSticker: 'Új matrica az albumodba!', advTheme: 'Ajándék: Téli háttér a Csillagboltban! ❄️', advOver: 'Boldog karácsonyt! 🎄',
+      advStars: '+{n} ⭐', advSticker: 'Új matrica az albumodba!', advTheme: 'Ajándék: Téli háttér és karácsonyi bagolyruha a Csillagboltban! ❄️🎅', advOver: 'Boldog karácsonyt! 🎄',
       advWish: ['Ma mondj egy kedves szót valakinek! 💛', 'Tudtad? A hópelyhek mind hatágúak. ❄️', 'Készíts egy rajzot a családodnak! 🎨', 'Tudtad? A pingvinek a Déli-sarkon élnek. 🐧',
         'Segíts ma otthon egy kicsit! 🧹', 'Tudtad? A rénszarvasok szeme télen kékre vált. 🦌', 'Énekelj el egy téli dalt! 🎶', 'Tudtad? A fenyőfa télen is zöld marad. 🌲'] },
     ro: { advBtn: '🎄 Calendarul de Advent', advT: '🎄 Calendarul de Advent', advSoon: 'Prima fereastră se deschide pe 1 decembrie! În fiecare zi te așteaptă o surpriză. ✨',
       advLead: 'Îndeplinește misiunea zilei și deschide fereastra de azi!', advNeed: 'Mai întâi îndeplinește misiunea zilei! 🎯', advLocked: 'Fereastra aceasta e încă închisă – {d} decembrie. ⏳',
-      advStars: '+{n} ⭐', advSticker: 'Un abțibild nou în album!', advTheme: 'Cadou: fundalul de iarnă în Magazinul de stele! ❄️', advOver: 'Crăciun fericit! 🎄',
+      advStars: '+{n} ⭐', advSticker: 'Un abțibild nou în album!', advTheme: 'Cadou: fundalul de iarnă și haina de Crăciun a bufniței în Magazinul de stele! ❄️🎅', advOver: 'Crăciun fericit! 🎄',
       advWish: ['Azi spune un cuvânt frumos cuiva! 💛', 'Știai? Toți fulgii de nea au șase colțuri. ❄️', 'Fă un desen pentru familia ta! 🎨', 'Știai? Pinguinii trăiesc la Polul Sud. 🐧',
         'Ajută puțin acasă azi! 🧹', 'Știai? Ochii renilor devin albaștri iarna. 🦌', 'Cântă un cântec de iarnă! 🎶', 'Știai? Bradul rămâne verde și iarna. 🌲'] },
     en: { advBtn: '🎄 Advent calendar', advT: '🎄 Advent calendar', advSoon: 'The first door opens on 1 December! A surprise awaits every day. ✨',
       advLead: 'Complete today’s mission, then open today’s door!', advNeed: 'Complete today’s mission first! 🎯', advLocked: 'This door is still closed – {d} December. ⏳',
-      advStars: '+{n} ⭐', advSticker: 'A new sticker for your album!', advTheme: 'Gift: the Winter background in the Star shop! ❄️', advOver: 'Merry Christmas! 🎄',
+      advStars: '+{n} ⭐', advSticker: 'A new sticker for your album!', advTheme: 'Gift: the Winter background and the Christmas owl outfit in the Star shop! ❄️🎅', advOver: 'Merry Christmas! 🎄',
       advWish: ['Say something kind to someone today! 💛', 'Did you know? Every snowflake has six points. ❄️', 'Draw a picture for your family! 🎨', 'Did you know? Penguins live at the South Pole. 🐧',
         'Help a little at home today! 🧹', 'Did you know? Reindeer eyes turn blue in winter. 🦌', 'Sing a winter song! 🎶', 'Did you know? Fir trees stay green all winter. 🌲'] }
   });
@@ -75,7 +75,8 @@
       }
       if (rw.theme) {
         x.owned = x.owned || {}; x.owned.theme = (x.owned.theme || []).filter(v => v !== 'winter').concat(['winter']);
-        x.equip = x.equip || {}; x.equip.theme = 'winter';
+        x.owned.owl = (x.owned.owl || []).filter(v => v !== 'xmas').concat(['xmas']);
+        x.equip = x.equip || {}; x.equip.theme = 'winter'; x.equip.owl = 'xmas';
       }
     });
     A.addStars(rw.stars, 0);
