@@ -121,7 +121,7 @@
     [1300, '👑', 'Szuper Zseni|Super Geniu|Super Genius']
   ].map(([min, e, n], i) => {
     const [hu, ro, en] = n.split('|');
-    return { min, e, img: `img/ranks/r${i + 1}.webp`, names: { hu, ro, en }, get n() { return GJ.L(this.names); } };
+    return { min, e, img: `img/ranks/r${i + 1}.webp`, mini: `img/ranks/m${i + 1}.webp`, names: { hu, ro, en }, get n() { return GJ.L(this.names); } };
   });
   GJ.rankFor = function (stars) {
     let i = 0;

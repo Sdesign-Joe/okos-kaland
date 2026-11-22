@@ -298,12 +298,12 @@
         <div class="toprow"><img class="mini-logo" src="${GJ.brand().title}" alt="${esc(t('appName'))}" data-go="profiles">${langSwitch()}</div>
         <div class="userbar" style="--c:${p.color}">
           <button class="ub-av" data-go="profiles" title="${t('switchPlayer')}">${GJ.avatarHTML(p.avatar)}</button>
-          <div class="ub-info"><b>${esc(p.name)}</b><span><img class="rank-mini" src="${rk.cur.img}" alt="">${esc(rk.cur.n)}</span></div>
+          <div class="ub-info"><b>${esc(p.name)}</b><span>${esc(rk.cur.n)}</span></div>
           <img class="rank-img" src="${rk.cur.img}" alt="${esc(rk.cur.n)}" title="${esc(rk.cur.n)}">
           <div class="pill star">⭐ ${p.stars}</div>
         </div>
         ${rk.next ? `<div class="rankbar"><div class="rb-fill" style="width:${pct}%"></div>
-          <span>${t('toNextRank', { n: rk.next.min - p.stars, r: `<img class="rank-mini" src="${rk.next.img}" alt="">${esc(rk.next.n)}` })}</span></div>` : ''}
+          <span>${t('toNextRank', { n: rk.next.min - p.stars, r: `<img class="rank-mini" src="${rk.next.mini}" alt="">${esc(rk.next.n)}` })}</span></div>` : ''}
         ${hook('homeTop', p).join('')}
         <div class="mascot-row"><div class="mascot bob">${hook('homeMascot', p)[0] || mascot('hello')}</div><div class="bubble">${esc(t('greet', { n: p.name }))}</div></div>
         <div class="subject-grid">
@@ -499,7 +499,7 @@
           <div class="pp-head">
             <span class="pp-av">${GJ.avatarHTML(p.avatar)}</span>
             <div><b>${esc(p.name)}</b> · ${t('age', { n: p.age })}<br>
-              <small>${t('summary', { s: p.stars, d: p.solved || 0, k: p.stickers.length, m: p.stories.length })} · <img class="rank-mini" src="${rk.img}" alt="">${esc(rk.n)}</small></div>
+              <small>${t('summary', { s: p.stars, d: p.solved || 0, k: p.stickers.length, m: p.stories.length })} · <img class="rank-mini" src="${rk.mini}" alt="">${esc(rk.n)}</small></div>
             <div class="pp-btns">
               <button class="mini-btn" data-go="editProfile" data-arg="${p.id}">${t('edit')}</button>
               <button class="mini-btn red" data-act="delProfile" data-id="${p.id}">${t('del')}</button>

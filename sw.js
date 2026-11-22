@@ -1,5 +1,5 @@
 /* Okos Kaland – service worker (automatikusan generálva: node tools/build-sw.js) */
-const CACHE = 'okos-kaland-202611221300';
+const CACHE = 'okos-kaland-202611221314';
 const FILES = ["./index.html",
   "./hu.html",
   "./ro.html",
@@ -207,6 +207,16 @@ const FILES = ["./index.html",
   "./img/poster-en.webp",
   "./img/poster-hu.webp",
   "./img/poster-ro.webp",
+  "./img/ranks/m1.webp",
+  "./img/ranks/m10.webp",
+  "./img/ranks/m2.webp",
+  "./img/ranks/m3.webp",
+  "./img/ranks/m4.webp",
+  "./img/ranks/m5.webp",
+  "./img/ranks/m6.webp",
+  "./img/ranks/m7.webp",
+  "./img/ranks/m8.webp",
+  "./img/ranks/m9.webp",
   "./img/ranks/r1.webp",
   "./img/ranks/r10.webp",
   "./img/ranks/r2.webp",
