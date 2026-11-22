@@ -1,0 +1,38 @@
+{
+  "name": "Clever Quest",
+  "short_name": "Clever Quest",
+  "description": "Playful learning for ages 7–9: maths, language, stories and poems – in English, Hungarian and Romanian.",
+  "lang": "en",
+  "start_url": "./en.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fdf3e7",
+  "theme_color": "#0e788c",
+  "categories": [
+    "education",
+    "kids",
+    "games"
+  ],
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./en.html"
+}

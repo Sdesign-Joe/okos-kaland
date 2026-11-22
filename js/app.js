@@ -50,6 +50,12 @@
   let timer = null;
   let cur = { name: 'profiles' };
 
+  /* ---------- Bővítési pontok (js/features/*.js modulokhoz) ---------- */
+  const H = {};
+  const hook = (name, ...a) => (H[name] || []).map(f => {
+    try { return f(...a); } catch (e) { console.warn('hook hiba:', name, e); return null; }
+  }).filter(x => x != null && x !== false && x !== '');
+
   const me = () => S.current();
   const gTitle = g => L(g.title), gDesc = g => L(g.desc);
   function render(html) { app.innerHTML = html; window.scrollTo(0, 0); }
@@ -70,6 +76,7 @@
     const p0 = me(); if (!p0) return null;
     const before = GJ.rankFor(p0.stars).cur;
     const p = S.update(p0.id, p => { p.stars += n; p.solved = (p.solved || 0) + (solved || 0); });
+    hook('stars', n, solved || 0);
     const after = GJ.rankFor(p.stars).cur;
     if (after.min !== before.min) setTimeout(() => { GJ.toast(t('rankToast', { r: `${after.e} ${after.n}` })); GJ.sfx('sticker'); }, 900);
     return p;
@@ -145,6 +152,11 @@
   /* ---------- Közös feladat-megjelenítés ---------- */
   const optLabel = (tk, o) => String((tk.optionLabels && tk.optionLabels[o]) || (String(o) + (tk.unit || '')));
   function answersHTML(tk, act) {
+    if (tk.type === 'input') {
+      return `<div class="input-row"><input id="ans-in" class="txt big-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+          ${tk.numeric ? 'inputmode="numeric"' : ''} maxlength="40" placeholder="${esc(tk.placeholder || '…')}">
+        <button class="big-btn green small" data-act="inputCheck">${t('check')}</button></div>`;
+    }
     if (tk.type === 'order') {
       return `<div class="slots" id="slots">${tk.answer.map((_, i) => `<button class="slot-box" data-act="unslot" data-i="${i}"></button>`).join('')}</div>
         <div class="tiles" id="tiles">${tk.items.map((it, i) => `<button class="tile pop" style="animation-delay:${i * 50}ms" data-act="tile" data-i="${i}">${esc(it.label || it.t)}</button>`).join('')}</div>`;
@@ -161,6 +173,10 @@
     ${tk.big ? `<div class="task-card pop">${tk.big}</div>` : ''}
     ${tk.hint ? `<p class="hint">${esc(tk.hint)}</p>` : ''}`;
   function revealCorrect(tk) {
+    if (tk.type === 'input') {
+      const inp = document.getElementById('ans-in'); if (inp) { inp.value = tk.answer; inp.classList.add('reveal'); inp.disabled = true; }
+      return;
+    }
     if (tk.type === 'order') {
       const slots = document.querySelectorAll('.slot-box');
       tk.answer.forEach((a, i) => {
@@ -174,7 +190,7 @@
     }
   }
   function revealBox(tk, head, act) {
-    const shown = tk.type === 'order' ? tk.answer.join(tk.items[0]?.label ? ', ' : '') : optLabel(tk, tk.answer);
+    const shown = tk.type === 'order' ? tk.answer.join(tk.items[0]?.label ? ', ' : '') : tk.type === 'input' ? tk.answer : optLabel(tk, tk.answer);
     return `<div class="reveal-box">${head ? `<div class="rb-head">${head}</div>` : ''}${t('correctWas')} <b>${esc(shown)}</b><br>${t('nextTime')}
       ${tk.explain ? `<div class="pp-explain">💡 ${esc(tk.explain)}</div>` : ''}
       <button class="big-btn green small" data-act="${act}">${t('next')}</button></div>`;
@@ -231,7 +247,7 @@
 
     editProfile(id) {
       const p = id ? S.get(id) : null;
-      form = { id: id || '', name: p ? p.name : '', age: p ? p.age : 7,
+      form = { id: id || '', name: p ? p.name : '', age: p ? p.age : 7, grade: p ? GJ.gradeOf(p) : null,
         avatar: p ? p.avatar : pick(AVATARS), color: p ? p.color : pick(COLORS) };
       render(`<div class="screen narrow">
         <div class="topbar">
@@ -245,6 +261,9 @@
           <label class="lbl">${t('howOld')}</label>
           <div class="chips">${[5, 6, 7, 8, 9, 10, 11, 12].map(a =>
             `<button class="chip ${a === form.age ? 'on' : ''}" data-act="pfAge" data-v="${a}">${a}</button>`).join('')}</div>
+          <label class="lbl">${t('grade')}</label>
+          <div class="chips" id="pf-grades">${[0, 1, 2, 3, 4].map(g =>
+            `<button class="chip ${g === (form.grade == null ? GJ.gradeForAge(form.age) : form.grade) ? 'on' : ''}" data-act="pfGrade" data-v="${g}">${t('gradeN' + g)}</button>`).join('')}</div>
           <label class="lbl">${t('pickAvatar')}</label>
           <div class="avatars">${AVATARS.map(a =>
             `<button class="av ${a === form.avatar ? 'on' : ''}" data-act="pfAvatar" data-v="${a}">${GJ.avatarHTML(a)}</button>`).join('')}</div>
@@ -272,7 +291,8 @@
         </div>
         ${rk.next ? `<div class="rankbar"><div class="rb-fill" style="width:${pct}%"></div>
           <span>${t('toNextRank', { n: rk.next.min - p.stars, r: `<img class="rank-mini" src="${rk.next.img}" alt="">${esc(rk.next.n)}` })}</span></div>` : ''}
-        <div class="mascot-row"><div class="mascot bob">${mascot('hello')}</div><div class="bubble">${esc(t('greet', { n: p.name }))}</div></div>
+        ${hook('homeTop', p).join('')}
+        <div class="mascot-row"><div class="mascot bob">${hook('homeMascot', p)[0] || mascot('hello')}</div><div class="bubble">${esc(t('greet', { n: p.name }))}</div></div>
         <div class="subject-grid">
           ${Object.values(GJ.SUBJECTS).map((s, i) => `<button class="subject-card s-${s.id} pop" style="animation-delay:${i * 90}ms" data-go="subject" data-arg="${s.id}">
               <span class="sc-icon">${imgTag(s.img, 'sc-img')}</span>
@@ -282,6 +302,7 @@
             </button>`).join('')}
         </div>
         <div class="row-btns">
+          ${hook('homeButtons', p).join('')}
           <button class="big-btn yellow" data-go="album">${ico(t('myStickers'))} <small>${p.stickers.length}/${GJ.STICKERS.length}</small></button>
           <button class="big-btn pink" data-go="library">${ico(t('stLibrary'))} <small>${p.stories.length}</small></button>
           <button class="big-btn blue" data-go="profiles">${ico(t('switchPlayer'))}</button>
@@ -292,7 +313,8 @@
     subject(sid) {
       const p = me(); if (!p) return go('profiles');
       const s = GJ.SUBJECTS[sid]; if (!s) return go('home');
-      const games = GJ.gamesFor(sid);
+      const games = GJ.gamesFor(sid).map((g, i) => ({ g, i, rec: GJ.isRecommended(g, p) }))
+        .sort((a, b) => (b.rec - a.rec) || (a.i - b.i)).map(x => x.g);
       render(`<div class="screen s-${sid}">
         <div class="topbar">
           <button class="icon-btn" data-go="home" aria-label="${t('back')}">⬅</button>
@@ -306,6 +328,7 @@
               <span class="gc-icon">${gIcon(g)}</span>
               <span class="gc-title">${esc(gTitle(g))}</span>
               <span class="gc-desc">${esc(gDesc(g))}</span>
+              ${GJ.isRecommended(g, p) ? `<span class="gc-rec">${t('recForYou')}</span>` : ''}
               ${st ? `<span class="gc-best">${t('best', { b: st.best, t: st.total })}</span>` : `<span class="gc-new">${t('isNew')}</span>`}
             </button>`;
           }).join('')}
@@ -317,7 +340,7 @@
     setup(gid) {
       const p = me(); if (!p) return go('profiles');
       const g = GJ.findGame(gid); if (!g) return go('home');
-      const rec = GJ.levelFor(p.age), prev = p.diff[gid] || {};
+      const rec = GJ.levelForProfile(p), prev = p.diff[gid] || {};
       setup = { gid, level: prev.level || rec, timed: !!prev.timed };
       render(`<div class="screen narrow s-${g.subject}">
         <div class="topbar">
@@ -344,23 +367,24 @@
       const game = GJ.findGame(gid); if (!game) return go('home');
       if (game.kind === 'story') return go('story');
       GJ.track('jatek/' + gid);
-      const st = p.diff[gid] || { level: GJ.levelFor(p.age), timed: false };
+      const st = p.diff[gid] || { level: GJ.levelForProfile(p), timed: false };
       const total = Math.min(S.settings().roundLen, game.maxRounds || Infinity);
       round = {
         game, total, idx: 0, correct: 0, firstTry: 0, stars: 0, streak: 0, seen: new Set(),
         level: st.level, timedAll: !!st.timed,
         ctx: { level: st.level, age: p.age, name: p.name },
-        startRank: GJ.rankFor(p.stars).cur
+        startRank: GJ.rankFor(p.stars).cur, t0: Date.now()
       };
+      hook('roundStart', round, game);
       nextTask();
     },
 
     /* --- Mesekészítő --- */
     story() {
       const p = me(); if (!p) return go('profiles');
-      const st = p.diff.mesekeszito || { level: GJ.levelFor(p.age), timed: false };
+      const st = p.diff.mesekeszito || { level: GJ.levelForProfile(p), timed: false };
       story = { level: st.level, timedAll: !!st.timed, hero: null, heroes: [], picked: [], friend: null, quest: null, node: null,
-        log: [], stars: 0, correct: 0, firstTry: 0, total: 0, startRank: GJ.rankFor(p.stars).cur };
+        log: [], stars: 0, correct: 0, firstTry: 0, total: 0, startRank: GJ.rankFor(p.stars).cur, t0: Date.now() };
       GJ.track('jatek/mesekeszito');
       goNode('start');
     },
@@ -389,6 +413,7 @@
         ${bookHTML(book)}
         <div class="row-btns">
           <button class="big-btn blue" data-act="readBook">${ico(t('stRead'))}</button>
+          ${hook('bookButtons', book).join('')}
           <button class="big-btn yellow" data-go="library">${ico(t('stLibrary'))}</button>
         </div>
       </div>`);
@@ -465,6 +490,7 @@
               <button class="mini-btn red" data-act="delProfile" data-id="${p.id}">${t('del')}</button>
             </div>
           </div>
+          ${hook('playerReport', p).join('')}
           ${rows ? `<table class="stats"><thead><tr><th>${t('thGame')}</th><th>${t('thRounds')}</th><th>${t('thBest')}</th></tr></thead><tbody>${rows}</tbody></table>` : `<p class="muted">${t('notPlayed')}</p>`}
         </div>`;
       }).join('') + `<button class="big-btn green small" data-go="editProfile">${t('addPlayer')}</button>`;
@@ -505,6 +531,7 @@
             <button class="link-btn inline tts-del" data-act="ttsRemove" id="tts-del" hidden>${t('ttsRemove')}</button></span></div>
         <div class="set-row"><span>${t('sRound')}</span>
           <div class="chips">${[5, 8, 10, 12].map(n => `<button class="chip ${s.roundLen === n ? 'on' : ''}" data-act="roundLen" data-v="${n}">${n}</button>`).join('')}</div></div>
+        ${hook('settings', s).join('')}
         <h3>${t('sFamily')}</h3>
         <p class="muted">${t('sFamilyNote')}</p>
         <div class="family-grid">${Object.keys(GJ.STORY.family).map(k => {
@@ -594,7 +621,8 @@
   function nextTask() {
     const r = round; if (!r) return;
     if (r.idx >= r.total) return finishRound();
-    r.task = GJ.makeTask(r.game, r.ctx, r.seen);
+    if (hook('gate', 'task').length) return;
+    r.task = r.queue ? r.queue[r.idx] : GJ.makeTask(r.game, r.ctx, r.seen);
     r.tries = 0; r.locked = false; r.placed = [];
     r.timed = r.timedAll || r.idx % 4 === 2; // minden körben vannak villámfeladatok
     r.timeSec = TIME[r.level] + (r.task.type === 'order' ? 15 : 0);
@@ -616,7 +644,8 @@
       ${answersHTML(tk, 'answer')}
       <div class="msg" id="msg" aria-live="polite"></div>
     </div>`);
-    if (S.settings().autoSpeak) GJ.speak(tk.speak || tk.prompt);
+    if (S.settings().autoSpeak || tk.autoSpeak) GJ.speak(tk.speak || tk.prompt);
+    if (tk.type === 'input') setTimeout(() => document.getElementById('ans-in')?.focus(), 80);
     if (r.timed) startTimer(r.timeSec, timeUp);
   }
 
@@ -624,6 +653,7 @@
     const r = round; r.locked = true; stopTimer();
     const first = r.tries === 0;
     r.correct++;
+    hook('taskDone', r, first);
     if (first) { r.firstTry++; r.streak++; } else r.streak = 0;
     const streakB = first && r.streak > 0 && r.streak % 3 === 0 ? 1 : 0;
     const fastB = r.timed ? 1 : 0;
@@ -643,6 +673,7 @@
   function fail() {
     const r = round, tk = r.task;
     r.tries++; r.streak = 0;
+    hook('taskWrong', r);
     GJ.sfx('wrong');
     const msg = document.getElementById('msg');
     if (r.tries >= (tk.type === 'order' ? 3 : 2)) {
@@ -657,6 +688,7 @@
   function timeUp() {
     const r = round; if (!r || r.locked) return;
     r.locked = true; r.streak = 0;
+    hook('taskWrong', r);
     GJ.sfx('timeout');
     revealCorrect(r.task);
     document.getElementById('msg').innerHTML = revealBox(r.task, t('timeUp'), 'next');
@@ -698,6 +730,7 @@
     const [mood, title] = aw.perfect ? ['trophy', t('rPerfect')] : ratio >= 0.7 ? ['cheer', t('rGreat')]
       : ratio >= 0.4 ? ['hello', t('rGood')] : ['encourage', t('rTry')];
     const gid = r.game.id, sid = r.game.subject;
+    const extra = hook('roundEnd', r, aw).join('');
     round = null;
     render(`<div class="screen center result">
       <div class="trophy bounce">${imgTag(GJ.MASCOT[mood], 'trophy-img')}</div>
@@ -710,9 +743,10 @@
       ${stickersHTML(aw.got)}
       ${!aw.earned ? `<p class="note">${t('needSticker', { n: aw.needed })}</p>` : ''}
       ${aw.allDone ? `<p class="note">${t('allStickers')}</p>` : ''}
+      ${extra}
       <div class="row-btns">
-        <button class="big-btn green" data-go="play" data-arg="${esc(gid)}">${ico(t('again'))}</button>
-        <button class="big-btn blue" data-go="subject" data-arg="${sid}">${ico(t('otherGame'))}</button>
+        ${r.queue ? '' : `<button class="big-btn green" data-go="play" data-arg="${esc(gid)}">${ico(t('again'))}</button>`}
+        <button class="big-btn blue" data-go="${r.queue ? 'home' : 'subject'}" data-arg="${sid}">${ico(t('otherGame'))}</button>
         <button class="big-btn yellow" data-go="home">${ico(t('home'))}</button>
       </div>
     </div>`);
@@ -796,6 +830,7 @@
 
   function goNode(id) {
     if (!story) return;
+    if (hook('gate', 'story').length) return;
     if (id.startsWith('@')) id = story.quest + '_' + id.slice(1);
     const n = ST().nodes[id];
     if (!n) { console.warn('Hiányzó mese-csomópont:', id); return go('home'); }
@@ -924,6 +959,8 @@
     GJ.track('mese-kesz/' + story.quest, true);
     S.update(p.id, x => { x.stories.unshift(entry); x.stories = x.stories.slice(0, 30); });
     const newRank = GJ.rankFor(aw.p.stars).cur, startRank = story.startRank, earnedStars = story.stars + aw.bonus;
+    const extra = hook('roundEnd', { game: GJ.findGame('mesekeszito'), correct: story.correct, total: story.total,
+      firstTry: story.firstTry, level: story.level, t0: story.t0, story: true }, aw).join('');
     story = null; book = entry;
     render(`<div class="screen narrow center result">
       <div class="trophy bounce">${imgTag(GJ.MASCOT.trophy, 'trophy-img')}</div>
@@ -932,9 +969,11 @@
       ${aw.perfect ? `<p class="perfect">${t('perfectBonus')}</p>` : ''}
       ${newRank.min !== startRank.min ? `<p class="rankup pop"><img class="rank-img" src="${newRank.img}" alt="">${t('newRank', { r: newRank.n })}</p>` : ''}
       ${stickersHTML(aw.got)}
+      ${extra}
       ${bookHTML(entry)}
       <div class="row-btns">
         <button class="big-btn blue" data-act="readBook">${ico(t('stRead'))}</button>
+        ${hook('bookButtons', entry).join('')}
         <button class="big-btn green" data-go="setup" data-arg="mesekeszito">${ico(t('stNew'))}</button>
         <button class="big-btn pink" data-go="library">${ico(t('stLibrary'))}</button>
         <button class="big-btn yellow" data-go="home">${ico(t('home'))}</button>
@@ -961,7 +1000,11 @@
     setLang(b) { GJ.setLang(b.dataset.v); GJ.sfx('click'); GJ.track('nyelv/' + b.dataset.v); go(cur.name, cur.arg); },
     pickProfile(b) { S.setCurrent(b.dataset.id); go('home'); },
 
-    pfAge(b) { form.age = +b.dataset.v; b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); },
+    pfAge(b) {
+      form.age = +b.dataset.v; b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b));
+      if (form.grade == null) document.querySelectorAll('#pf-grades .chip').forEach(x => x.classList.toggle('on', +x.dataset.v === GJ.gradeForAge(form.age)));
+    },
+    pfGrade(b) { form.grade = +b.dataset.v; b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); },
     pfAvatar(b) {
       form.avatar = b.dataset.v;
       b.parentElement.querySelectorAll('.av').forEach(x => x.classList.toggle('on', x === b));
@@ -976,7 +1019,7 @@
     pfSave() {
       const name = document.getElementById('pf-name').value.trim();
       if (!name) { document.getElementById('pf-err').textContent = t('nameReq'); return; }
-      const data = { name, age: form.age, avatar: form.avatar, color: form.color };
+      const data = { name, age: form.age, avatar: form.avatar, color: form.color, grade: form.grade == null ? GJ.gradeForAge(form.age) : form.grade };
       if (form.id) { S.update(form.id, p => Object.assign(p, data)); go('parent', 'players'); }
       else {
         const p = S.add(data); S.setCurrent(p.id);
@@ -1001,6 +1044,15 @@
       const tk = r.task, o = tk.options[+b.dataset.i];
       if (String(o) === String(tk.answer)) { b.classList.add('right'); success(b); }
       else { b.classList.add('wrong'); b.disabled = true; fail(); }
+    },
+    inputCheck() {
+      const r = round; if (!r || r.locked) return;
+      const inp = document.getElementById('ans-in'); if (!inp) return;
+      const norm = x => String(x).trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.!?]+$/, '');
+      const val = norm(inp.value); if (!val) { inp.focus(); return; }
+      const ok = [r.task.answer].concat(r.task.accept || []).some(a => norm(a) === val);
+      if (ok) { inp.classList.add('right'); success(inp); }
+      else { inp.classList.add('wrong'); fail(); if (!r.locked) setTimeout(() => { inp.classList.remove('wrong'); inp.select(); }, 700); }
     },
     tile(b) {
       const r = round; if (!r || r.locked) return;
@@ -1185,6 +1237,7 @@
     if (e.key !== 'Enter') return;
     if (e.target.id === 'gate') actions.gate();
     if (e.target.id === 'pf-name') actions.pfSave();
+    if (e.target.id === 'ans-in') actions.inputCheck();
   });
   app.addEventListener('change', e => {
     if (e.target.id !== 'importFile' || !e.target.files[0]) return;
@@ -1209,7 +1262,15 @@
   });
   window.addEventListener('appinstalled', () => { installEvt = null; GJ.toast(t('installed')); GJ.track('telepites', true); });
 
-  GJ.track('megnyitas/' + GJ.lang());
+  GJ.app = {
+    on: (name, fn) => { (H[name] = H[name] || []).push(fn); },
+    go, render, me, modal, closeModal, ico, imgTag, mascot, celebrate, addStars, bookHTML, layer, screens, actions, parentTabs,
+    get cur() { return cur; }, get round() { return round; }, get story() { return story; }
+  };
+  (GJ.features || []).forEach(f => { try { f(GJ.app); } catch (e) { console.warn('modul hiba:', e); } });
+
+  // a cím is bekerül, így a GoatCounterben látszik, melyik oldalról jött (GitHub vagy saját aldomain)
+  GJ.track('megnyitas/' + GJ.lang() + '/' + (location.hostname || 'helyi'));
 
   // Kezdőoldal mindig a plakátos „Ki játszik ma?” képernyő, a böngésző nyelvén
   go('profiles');

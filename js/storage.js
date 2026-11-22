@@ -42,7 +42,7 @@
       const ps = store.profiles();
       const p = {
         id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        name: data.name, age: data.age, avatar: data.avatar, color: data.color,
+        name: data.name, age: data.age, avatar: data.avatar, color: data.color, grade: data.grade != null ? data.grade : null,
         stars: 0, solved: 0, stickers: [], played: {}, stories: [], diff: {}, created: Date.now()
       };
       ps.push(p);

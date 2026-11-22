@@ -17,5 +17,14 @@ window.GJ = window.GJ || {};
 GJ.CONFIG = {
   goatcounter: 'okosland',
   feedbackEmail: 'info@bimpex.ro',
-  feedbackForm: ''
+  feedbackForm: '',
+
+  /* SAJÁT CÍMEK NYELVENKÉNT (aldomainek) – ugyanaz a program, más alapnyelvvel.
+   * A nyelv mindenhol átváltható; ez csak az első megnyitáskori nyelvet adja meg.
+   * (Ha a felhasználó maga választ nyelvet, az számít.) */
+  domainLang: {
+    'okoskaland.bimpex.ro': 'hu',
+    'aventuraisteata.bimpex.ro': 'ro',
+    'cleverquest.bimpex.ro': 'en'
+  }
 };

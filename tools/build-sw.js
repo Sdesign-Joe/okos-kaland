@@ -5,7 +5,48 @@
  */
 const fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..');
-const INCLUDE = ['index.html', 'manifest.webmanifest', 'favicon.ico', 'css', 'js', 'img'];
+/* ---------- Nyelvi belépőoldalak: ro.html, en.html (+ saját manifest) az index.html-ből ----------
+ * Saját megosztási előnézet (Facebook, Messenger…), alkalmazásnév és alapnyelv nyelvenként.
+ * Az aldomainek (pl. aventuraisteata.bimpex.ro) ezekre mutathatnak – lásd .htaccess. */
+const SITE = 'https://sdesign-joe.github.io/okos-kaland/';
+const PAGES = {
+  ro: { name: 'Aventura Isteață', locale: 'ro_RO',
+    title: 'Aventura Isteață – învățare prin joacă pentru copii de 7–9 ani',
+    desc: 'Matematică, limbă și povești într-un singur joc – în română, maghiară și engleză. Gratuit, fără reclame și fără cont.',
+    mdesc: 'Învățare prin joacă pentru copii de 7–9 ani: matematică, limbă, povești și poezii – în română, maghiară și engleză.' },
+  en: { name: 'Clever Quest', locale: 'en_GB',
+    title: 'Clever Quest – playful learning for ages 7–9',
+    desc: 'Maths, language and stories in one game – in English, Hungarian and Romanian. Free, no ads, no sign-up.',
+    mdesc: 'Playful learning for ages 7–9: maths, language, stories and poems – in English, Hungarian and Romanian.' }
+};
+const escA = x => x.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const indexSrc = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const baseManifest = JSON.parse(fs.readFileSync(path.join(root, 'manifest.webmanifest'), 'utf8'));
+for (const [l, P] of Object.entries(PAGES)) {
+  const meta = `<!--LANG-META-->
+  <title>${escA(P.name)}</title>
+  <meta name="description" content="${escA(P.mdesc)}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="${escA(P.name)}">
+  <meta property="og:title" content="${escA(P.title)}">
+  <meta property="og:description" content="${escA(P.desc)}">
+  <meta property="og:image" content="${SITE}img/og-${l}.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="${P.locale}">
+  <meta name="twitter:card" content="summary_large_image">
+  <!--/LANG-META-->`;
+  let h = indexSrc.replace(/<!--LANG-META-->[\s\S]*?<!--\/LANG-META-->/, meta)
+    .replace(/<html lang="hu"[^>]*>/, `<html lang="${l}" data-page-lang="${l}">`)
+    .replace(/href="manifest\.webmanifest"><!--MANIFEST-->/, `href="manifest-${l}.webmanifest"><!--MANIFEST-->`)
+    .replace(/content="Okos Kaland"><!--APPTITLE-->/, `content="${escA(P.name)}"><!--APPTITLE-->`)
+    .replace(/href="img\/logo-hu\.webp"><!--PRELOAD-->/, `href="img/logo-${l}.webp"><!--PRELOAD-->`);
+  fs.writeFileSync(path.join(root, `${l}.html`), h);
+  const m = Object.assign({}, baseManifest, { name: P.name, short_name: P.name, description: P.mdesc, lang: l, start_url: `./${l}.html`, id: `./${l}.html` });
+  fs.writeFileSync(path.join(root, `manifest-${l}.webmanifest`), JSON.stringify(m, null, 2) + '\n');
+}
+
+const INCLUDE = ['index.html', 'ro.html', 'en.html', 'manifest.webmanifest', 'manifest-ro.webmanifest', 'manifest-en.webmanifest', 'favicon.ico', 'css', 'js', 'img'];
 const files = [];
 function walk(rel) {
   const abs = path.join(root, rel);

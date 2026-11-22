@@ -54,6 +54,21 @@
   /** Ajánlott nehézségi szint az életkor alapján */
   GJ.levelFor = age => (age <= 7 ? 1 : age === 8 ? 2 : 3);
 
+  /* ---------- Osztályok (tanterv szerinti ajánlás) ----------
+     0 = óvoda / előkészítő, 1–4 = osztály. A profilban megadható; ha nincs, az életkorból becsüljük.
+     A játékok „grades” mezője mondja meg, melyik osztályoknak ajánlott (a magyar és a román tanterv
+     témáihoz igazítva: 1. o. 20-as, 2. o. 100-as számkör + szorzótábla, 3. o. 1000-es számkör). */
+  GJ.gradeForAge = age => Math.max(0, Math.min(4, (age || 7) - 6));
+  GJ.gradeOf = p => (p && p.grade != null ? p.grade : GJ.gradeForAge(p && p.age));
+  GJ.levelForProfile = p => { const g = GJ.gradeOf(p); return g <= 1 ? 1 : g === 2 ? 2 : 3; };
+  const GRADES = {
+    osszeadas: [1, 2, 3, 4], szorzas: [2, 3, 4], szamlalo: [0, 1], hasonlitas: [0, 1, 2], sorozat: [1, 2, 3], penz: [1, 2, 3],
+    ora: [2, 3], jly: [2, 3, 4], helyesiras: [1, 2, 3], szotag: [0, 1, 2], szokirako: [0, 1, 2], betorend: [2, 3],
+    ellentetek: [1, 2, 3], irasjel: [1, 2], nagybetu: [1, 2], mesekeszito: [0, 1, 2, 3, 4], mesek: [0, 1, 2, 3],
+    versek: [0, 1, 2, 3], rimek: [0, 1, 2], kozmondasok: [3, 4]
+  };
+  GJ.isRecommended = (g, p) => { const gr = g.grades || GRADES[g.id]; return !!(gr && p && gr.includes(GJ.gradeOf(p))); };
+
   const available = g => !g.langs || g.langs.includes(GJ.lang());
 
   /** Szülők által felvett saját feladatok – tantárgyanként egy „játék” */

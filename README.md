@@ -127,3 +127,20 @@ js/games/irodalom.js     – mesekvíz, versek, rímek, közmondások
 js/games/mesekeszito.js  – az interaktív Mesekészítő
 js/app.js                – képernyők, játékmenet, időzítő, mesekönyv
 ```
+
+## Bővítő modulok (js/features/)
+
+A program magja (`js/app.js`) bővítési pontokat ad (`GJ.app.on('roundEnd', …)` stb.); a modulok ezekre kapcsolódnak:
+
+| Fájl | Mit tud |
+|---|---|
+| `learning.js` | Gyakorold a hibáidat, automatikus nehézség, napi küldetés + sorozat, szülői kimutatás, állítható napi időkorlát |
+| `shop.js` | Csillagbolt (hátterek; bagolyruhák és figurák: `GJ.SHOP_OWL`, `GJ.SHOP_AVATAR` + képek az `img/shop/` mappában) |
+| `share.js` | Mesekönyv nyomtatása / PDF, adatátvitel másik eszközre QR-kóddal (szerver nélkül) |
+
+Saját szövegek: `GJ.addTexts({ hu: {...}, ro: {...}, en: {...} })`.
+
+## Nyelvenkénti címek
+
+- `index.html` – a böngésző nyelvén indul; `ro.html`, `en.html` – román / angol alapnyelv, saját megosztási előnézettel és alkalmazásnévvel (ezeket a `node tools/build-sw.js` készíti az `index.html`-ből).
+- Aldomainek alapnyelve: `js/config.js` → `domainLang`. A nyelv mindenhol átváltható.

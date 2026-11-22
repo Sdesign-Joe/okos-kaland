@@ -1,7 +1,7 @@
 {
   "name": "Okos Kaland",
   "short_name": "Okos Kaland",
-  "description": "Játékos tanulás 7–8 éveseknek: matek, nyelvtan, mesék és versek – magyarul, románul és angolul.",
+  "description": "Játékos tanulás 7–9 éveseknek: matek, nyelvtan, mesék és versek – magyarul, románul és angolul.",
   "lang": "hu",
   "start_url": "./index.html",
   "scope": "./",

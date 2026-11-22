@@ -293,9 +293,18 @@
     }
     return 'en';
   };
+  /** Az oldal / a cím alapnyelve: ro.html, en.html – vagy az aldomain (config.js: domainLang) */
+  GJ.pageLang = () => {
+    const pl = document.documentElement.getAttribute('data-page-lang');
+    if (D[pl]) return pl;
+    const dl = ((GJ.CONFIG || {}).domainLang || {})[location.hostname];
+    return D[dl] ? dl : null;
+  };
+  /** Modulok saját szövegei: GJ.addTexts({ hu: {...}, ro: {...}, en: {...} }) */
+  GJ.addTexts = o => { for (const l of Object.keys(o)) if (D[l]) Object.assign(D[l], o[l]); };
   GJ.lang = () => {
     const st = GJ.store.settings(); // a mentett nyelv csak akkor számít, ha a felhasználó maga választotta
-    return st.langChosen && D[st.lang] ? st.lang : GJ.browserLang();
+    return st.langChosen && D[st.lang] ? st.lang : (GJ.pageLang() || GJ.browserLang());
   };
   GJ.setLang = l => {
     const s = GJ.store.settings(); s.lang = D[l] ? l : 'hu'; s.langChosen = true; GJ.store.saveSettings(s);
