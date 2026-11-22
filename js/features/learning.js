@@ -74,6 +74,7 @@
 
   function saveMistake(r) {
     const p = me(); if (!p || r.mode === 'hibak' || r.task.__m || String(r.game.id).startsWith('sajat-')) return;
+    if (GJ.taskTypes && GJ.taskTypes[r.task.type]) return;   // pl. betűírás – ezt nem tesszük a gyakorlandók közé
     r.task.__m = true;
     const task = {}; MKEYS.forEach(k => { if (r.task[k] !== undefined) task[k] = r.task[k]; });
     const k = mKey(task);
@@ -164,6 +165,7 @@
     const m = MISSIONS[hash(d + p.id) % MISSIONS.length];
     return { date: d, id: m.id, n: m.n[Math.min(4, GJ.gradeOf(p))], prog: 0, done: false, games: [] };
   }
+  GJ.dailyOf = p => daily(p);   // más modulok (pl. adventi naptár) is látják, kész-e a mai küldetés
   const streakNow = p => { const s = p.streak; return s && (s.last === today() || s.last === daysAgo(1)) ? s.n : 0; };
 
   function progress(fn) {

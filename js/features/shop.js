@@ -33,7 +33,9 @@
       { id: 'candy', price: 40, n: { hu: 'Cukorvár', ro: 'Castel de bomboane', en: 'Candy castle' }, sw: ['#ffd6e7', '#f3d9fa', '#fff0f6'] },
       { id: 'sunset', price: 40, n: { hu: 'Naplemente', ro: 'Apus', en: 'Sunset' }, sw: ['#ffd8a8', '#ffc9c9', '#fff3bf'] },
       { id: 'space', price: 60, n: { hu: 'Csillagos ég', ro: 'Cer înstelat', en: 'Starry sky' }, sw: ['#b9c4ff', '#d8c8ff', '#ffe3f1'] },
-      { id: 'mint', price: 60, n: { hu: 'Mentafagyi', ro: 'Înghețată de mentă', en: 'Mint ice cream' }, sw: ['#c3fae8', '#e6fcf5', '#fff5f5'] }
+      { id: 'mint', price: 60, n: { hu: 'Mentafagyi', ro: 'Înghețată de mentă', en: 'Mint ice cream' }, sw: ['#c3fae8', '#e6fcf5', '#fff5f5'] },
+      // csak az adventi naptárból (dec. 24.) szerezhető – addig nem látszik a boltban
+      { id: 'winter', price: 0, special: true, n: { hu: 'Téli csoda', ro: 'Minune de iarnă', en: 'Winter wonder' }, sw: ['#d0e4ff', '#f1f6ff', '#ffffff'] }
     ],
     // képek: img/shop/owl-<id>.webp
     owl: [
@@ -93,7 +95,7 @@
     applyTheme();
     tab = tab || 'theme';
     const fig = figOf(p);
-    const list = tab === 'fit' ? (fig ? fitList(fig) : []) : (SHOP[tab] || []);
+    const list = tab === 'fit' ? (fig ? fitList(fig) : []) : (SHOP[tab] || []).filter(it => !it.special || owns(p, tab, it.id));
     A.render(`<div class="screen">
       <div class="topbar"><button class="icon-btn" data-go="home" aria-label="${t('back')}">⬅</button>
         <h2>${t('shopT')}</h2><div class="pill star">${t('shopBal', { n: balance(p) })}</div></div>

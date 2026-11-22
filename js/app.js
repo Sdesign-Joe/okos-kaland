@@ -158,7 +158,11 @@
 
   /* ---------- Közös feladat-megjelenítés ---------- */
   const optLabel = (tk, o) => String((tk.optionLabels && tk.optionLabels[o]) || (String(o) + (tk.unit || '')));
+  /* Bővíthető feladattípusok: GJ.taskTypes[type] = { html(tk), mount(tk, api), reveal(tk) }
+     api.ok(el) = helyes, api.bad() = hibás; a feladat tk.answerLabel-je jelenik meg a „helyes válasz” dobozban. */
+  GJ.taskTypes = GJ.taskTypes || {};
   function answersHTML(tk, act) {
+    if (GJ.taskTypes[tk.type]) return GJ.taskTypes[tk.type].html(tk);
     if (tk.type === 'input') {
       return `<div class="input-row"><input id="ans-in" class="txt big-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
           ${tk.numeric ? 'inputmode="numeric"' : ''} maxlength="40" placeholder="${esc(tk.placeholder || '…')}">
@@ -180,6 +184,7 @@
     ${tk.big ? `<div class="task-card pop">${tk.big}</div>` : ''}
     ${tk.hint ? `<p class="hint">${esc(tk.hint)}</p>` : ''}`;
   function revealCorrect(tk) {
+    if (GJ.taskTypes[tk.type]) { if (GJ.taskTypes[tk.type].reveal) GJ.taskTypes[tk.type].reveal(tk); return; }
     if (tk.type === 'input') {
       const inp = document.getElementById('ans-in'); if (inp) { inp.value = tk.answer; inp.classList.add('reveal'); inp.disabled = true; }
       return;
@@ -197,7 +202,7 @@
     }
   }
   function revealBox(tk, head, act) {
-    const shown = tk.type === 'order' ? tk.answer.join(tk.items[0]?.label ? ', ' : '') : tk.type === 'input' ? tk.answer : optLabel(tk, tk.answer);
+    const shown = tk.answerLabel != null ? tk.answerLabel : tk.type === 'order' ? tk.answer.join(tk.items[0]?.label ? ', ' : '') : tk.type === 'input' ? tk.answer : optLabel(tk, tk.answer);
     return `<div class="reveal-box">${head ? `<div class="rb-head">${head}</div>` : ''}${t('correctWas')} <b>${esc(shown)}</b><br>${t('nextTime')}
       ${tk.explain ? `<div class="pp-explain">💡 ${esc(tk.explain)}</div>` : ''}
       <button class="big-btn green small" data-act="${act}">${t('next')}</button></div>`;
@@ -363,7 +368,9 @@
           <span><b>${t('timed')}</b><small>${t('timedD')}</small></span>
           <button class="toggle ${setup.timed ? 'on' : ''}" data-act="toggleTimed" aria-label="${t('timed')}"><i></i></button>
         </div>
+        ${hook('setupBefore', g, p).join('')}
         <button class="big-btn green wide" data-act="startGame">${ico(t('start'))}</button>
+        ${hook('setupExtra', g, p).join('')}
         ${g.kind === 'story' ? `<div class="center"><button class="link-btn" data-go="library">${ico(t('stLibrary'))} (${p.stories.length})</button></div>` : ''}
       </div>`);
     },
@@ -632,7 +639,7 @@
     if (hook('gate', 'task').length) return;
     r.task = r.queue ? r.queue[r.idx] : GJ.makeTask(r.game, r.ctx, r.seen);
     r.tries = 0; r.locked = false; r.placed = [];
-    r.timed = r.timedAll || r.idx % 4 === 2; // minden körben vannak villámfeladatok
+    r.timed = !r.task.noTimer && (r.timedAll || r.idx % 4 === 2); // minden körben vannak villámfeladatok
     r.timeSec = TIME[r.level] + (r.task.type === 'order' ? 15 : 0);
     renderTask();
   }
@@ -654,6 +661,9 @@
     </div>`);
     if (S.settings().autoSpeak || tk.autoSpeak) GJ.speak(tk.speak || tk.prompt);
     if (tk.type === 'input') setTimeout(() => document.getElementById('ans-in')?.focus(), 80);
+    if (GJ.taskTypes[tk.type] && GJ.taskTypes[tk.type].mount) {
+      GJ.taskTypes[tk.type].mount(tk, { ok: el => { if (round === r && !r.locked) success(el); }, bad: () => { if (round === r && !r.locked) fail(); }, get locked() { return round !== r || r.locked; } });
+    }
     if (r.timed) startTimer(r.timeSec, timeUp);
   }
 
@@ -1273,7 +1283,7 @@
   GJ.app = {
     on: (name, fn) => { (H[name] = H[name] || []).push(fn); },
     go, render, me, modal, closeModal, ico, imgTag, mascot, celebrate, addStars, bookHTML, layer, screens, actions, parentTabs,
-    get cur() { return cur; }, get round() { return round; }, get story() { return story; }
+    get cur() { return cur; }, get round() { return round; }, get story() { return story; }, get setup() { return setup; }
   };
   (GJ.features || []).forEach(f => { try { f(GJ.app); } catch (e) { console.warn('modul hiba:', e); } });
 

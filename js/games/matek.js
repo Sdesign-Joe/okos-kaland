@@ -223,6 +223,31 @@
     title: { hu: 'Hány óra van?', ro: 'Cât e ceasul?', en: 'What time is it?' },
     desc: { hu: 'Olvasd le az órát!', ro: 'Citește ceasul!', en: 'Read the clock!' },
     make({ level, lang }) {
+      // 3. szint: 5 perces pontosság (digitális kiírással) és „mennyi lesz … múlva?”
+      if (level === 3 && Math.random() < 0.6) {
+        const P = { hu: 'Hány óra van?', ro: 'Cât e ceasul?', en: 'What time is it?' };
+        if (Math.random() < 0.55) {
+          const h = rand(1, 12), m = rand(1, 11) * 5, dg = (H, M) => `${H}:${String(M).padStart(2, '0')}`;
+          const nx = h % 12 + 1, swap = m / 5;
+          const cands = [dg(h, (m + 5) % 60 || 5), dg(nx, m), dg(h, (m + 55) % 60 || 55), dg(swap, (h % 12) * 5 || 0), dg(h === 1 ? 12 : h - 1, m)];
+          return {
+            type: 'choice', key: 'd' + h + ':' + m, prompt: P[lang], big: clockSVG(h, m),
+            options: options(dg(h, m), shuffle(cands)), answer: dg(h, m),
+            hint: { hu: '⏱️ A hosszú mutató minden számnál 5 percet lép.', ro: '⏱️ Acul mare face 5 minute de la un număr la altul.', en: '⏱️ The long hand moves 5 minutes from one number to the next.' }[lang],
+            explain: { hu: `A nagymutató helye: ${swap}, és ${swap} × 5 = ${m} perc.`, ro: `Acul mare e pe ${swap}: ${swap} × 5 = ${m} minute.`, en: `The long hand is on ${swap}: ${swap} × 5 = ${m} minutes.` }[lang]
+          };
+        }
+        const h = rand(1, 12), m = pick([0, 15, 30, 45]), add = pick([15, 30, 60, 90]);
+        const tot = h * 60 + m + add, h2 = (Math.floor(tot / 60) - 1) % 12 + 1, m2 = tot % 60;
+        const AD = { hu: { 15: 'negyed óra', 30: 'fél óra', 60: 'egy óra', 90: 'másfél óra' },
+          ro: { 15: 'un sfert de oră', 30: 'o jumătate de oră', 60: 'o oră', 90: 'o oră și jumătate' },
+          en: { 15: 'a quarter of an hour', 30: 'half an hour', 60: 'an hour', 90: 'an hour and a half' } }[lang][add];
+        const q = { hu: `Hány óra lesz ${AD} múlva?`, ro: `Cât va fi ceasul peste ${AD}?`, en: `What time will it be in ${AD}?` }[lang];
+        const ans = timeLabel(h2, m2, lang), cands = [];
+        for (const d of [15, 30, 60, 90, 0]) { const tt = h * 60 + m + d; if (d !== add) cands.push(timeLabel((Math.floor(tt / 60) - 1) % 12 + 1, tt % 60, lang)); }
+        return { type: 'choice', key: `l${h}:${m}+${add}`, prompt: q, big: clockSVG(h, m), options: options(ans, shuffle(cands)), answer: ans, cols: 1,
+          explain: { hu: `Most ${timeLabel(h, m, lang)} van, ${AD} múlva ${ans}.`, ro: `Acum e ${timeLabel(h, m, lang)}; peste ${AD} va fi ${ans}.`, en: `Now it is ${timeLabel(h, m, lang)}; in ${AD} it will be ${ans}.` }[lang] };
+      }
       const mins = level === 1 ? [0, 30] : [0, 15, 30, 45];
       const h = rand(1, 12), m = pick(mins);
       const ans = timeLabel(h, m, lang);
