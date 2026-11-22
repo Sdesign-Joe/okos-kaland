@@ -767,14 +767,31 @@ html[data-theme="mint"]   { --bg1: #c3fae8; --bg2: #e6fcf5; --bg3: #fff5f5; }
 .qr-part { font-weight: 800; }
 .qr-cam video { width: min(80vw, 360px); border-radius: 14px; background: #000; }
 
-/* mesekönyv nyomtatása / PDF */
+/* mesekönyv nyomtatása / PDF – A4: külön borítóoldal, utána a mese oldalai nagy képekkel, oldal közepén nem törnek el */
 @media print {
-  body.printing { background: #fff !important; }
+  @page { size: A4; margin: 14mm 16mm; }
+  body.printing { background: #fff !important; padding: 0 !important; margin: 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body.printing .sky, body.printing #toast, body.printing #layer, body.printing #confetti { display: none !important; }
+  body.printing #app { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+  body.printing #app > .screen { max-width: none !important; margin: 0 !important; padding: 0 !important; animation: none !important; }
   body.printing #app > .screen > *:not(.book) { display: none !important; }
-  body.printing .book { box-shadow: none !important; animation: none !important; max-width: none; }
-  body.printing .book-page { break-inside: avoid; page-break-inside: avoid; }
-  body.printing .book-cover { break-after: page; page-break-after: always; }
+  body.printing .book { box-shadow: none !important; animation: none !important; max-width: none; margin: 0; border: 0; border-radius: 0; background: #fff; overflow: visible; }
+  /* borító: egy teljes oldal, középre igazítva */
+  body.printing .book-cover { height: 262mm; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8mm;
+    background: #fff; color: #5f3dc4; border: 2.5mm double #b197fc; border-radius: 8mm; padding: 16mm; break-after: page; page-break-after: always; }
+  body.printing .bc-art { font-size: 120pt; }
+  body.printing .bc-img { width: 110mm; height: 110mm; border: 1.5mm solid #e5dbff; box-shadow: none; }
+  body.printing .bc-img.small { width: 60mm; height: 60mm; margin: 0 -4mm; }
+  body.printing .book-cover h2 { font-size: 30pt; line-height: 1.2; text-shadow: none; color: #5f3dc4; margin: 0; }
+  body.printing .book-cover p { font-size: 14pt; color: #495057; opacity: 1; }
+  /* mese oldalai: kép fent középen, alatta a szöveg; egy blokk sosem törik ketté */
+  body.printing .book-page { display: block; text-align: center; padding: 5mm 4mm 6mm; border-bottom: .4mm dashed #e2c88f; break-inside: avoid; page-break-inside: avoid; }
+  body.printing .book-page:last-of-type { border-bottom: 0; }
+  body.printing .bp-img { width: 56mm; height: 56mm; border: 0; border-radius: 5mm; box-shadow: none; display: block; margin: 0 auto 4mm; }
+  body.printing .bp-img.wide { width: 88mm; height: 66mm; }
+  body.printing .bp-art { display: block; font-size: 34pt; margin: 0 auto 2mm; }
+  body.printing .book-page p { font-size: 14pt; line-height: 1.5; color: #212529; text-align: left; max-width: 160mm; margin: 0 auto; }
+  body.printing .book-end { font-size: 18pt; margin: 8mm 0 0; break-before: avoid; color: #5f3dc4; }
 }
 
 /* ===== Boltocska ===== */
@@ -817,6 +834,25 @@ html[data-theme="mint"]   { --bg1: #c3fae8; --bg2: #e6fcf5; --bg3: #fff5f5; }
 .duel-res { display: flex; flex-direction: column; align-items: center; gap: 4px; background: #fff; border-radius: 20px; padding: 12px 18px; box-shadow: var(--lift); }
 .duel-res.win { outline: 5px solid var(--yellow); }
 .duel-res em { font-style: normal; font-size: 30px; font-weight: 800; color: var(--violet); }
+.duel-guest { background: #f3f0ff; border-radius: 16px; padding: 8px 12px 10px; margin: 4px 0 8px; }
+.duel-guest .txt { width: 100%; }
+.duel-standing { font-size: 20px; font-weight: 800; color: var(--violet); margin: 6px 0; }
+.dc-champ { font-size: 24px; font-weight: 700; margin: 4px 0 10px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.dc-champ b { color: var(--violet); font-size: 30px; }
+.dc-podium { display: flex; align-items: flex-end; justify-content: center; gap: 14px; margin: 8px 0 12px; }
+.dc-col { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 46%; max-width: 190px; opacity: 0; animation: dcRise .7s ease-out forwards; }
+.dc-col b { font-size: 20px; }
+.dc-crown { font-size: 34px; animation: dcFloat 1.4s ease-in-out infinite; }
+@keyframes dcFloat { 50% { transform: translateY(-6px) rotate(-6deg); } }
+.dc-stat { display: flex; flex-direction: column; align-items: center; font-weight: 700; font-size: 15px; }
+.dc-stars { color: #e67700; }
+.dc-step { width: 100%; border-radius: 16px 16px 6px 6px; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; font-size: 38px; box-shadow: var(--lift); background: linear-gradient(#ced4da, #adb5bd); height: 80px; }
+.dc-col.first .dc-step { background: linear-gradient(#ffe066, #fab005); height: 120px; }
+.dc-col.tie .dc-step { background: linear-gradient(#b2f2bb, #69db7c); height: 100px; }
+.dc-rounds { display: flex; flex-direction: column; gap: 6px; max-width: 360px; margin: 0 auto 8px; }
+.dc-round { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #fff; border-radius: 14px; padding: 6px 14px; box-shadow: var(--lift); font-weight: 700; }
+.dc-round .dp-av, .dc-round img { width: 32px; height: 32px; font-size: 26px; }
+@keyframes dcRise { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
 
 /* ===== Adventi naptár ===== */
 .adv-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; max-width: 720px; margin: 10px auto; }

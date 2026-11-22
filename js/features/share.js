@@ -41,9 +41,10 @@
     document.body.classList.add('printing');
     const done = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
-    // a képek betöltődését megvárjuk
+    // a képek betöltődését megvárjuk (a „lusta” betöltésű képeket is azonnal letöltetjük), legfeljebb 4 mp-ig
+    document.querySelectorAll('.book img').forEach(i => { i.loading = 'eager'; });
     const imgs = [...document.querySelectorAll('.book img')].filter(i => !i.complete);
-    Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; }))).then(() => setTimeout(() => { window.print(); setTimeout(done, 1500); }, 200));
+    Promise.race([Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; }))), new Promise(r => setTimeout(r, 4000))]).then(() => setTimeout(() => { window.print(); setTimeout(done, 1500); }, 200));
   };
 
   /* =================== QR-kódos átvitel =================== */
