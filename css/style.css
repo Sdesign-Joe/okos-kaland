@@ -865,3 +865,4 @@ html[data-theme="winter"] { --bg1: #d0e4ff; --bg2: #f1f6ff; --bg3: #ffffff; }
   .ws-keypage { break-before: page; page-break-before: always; }
   .ws-keypage ol { columns: 2; font-size: 13pt; }
 }
+.st-back-row { margin-top: 14px; }

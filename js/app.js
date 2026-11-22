@@ -216,7 +216,7 @@
     setTimeout(() => {
       modal(`<div class="pp-emoji bounce">${imgTag(GJ.MASCOT.cheer, 'pp-img')}</div>
         <div class="pp-text">${esc(pr.text)} ${pr.e}</div>
-        <div class="pp-sub">+${gained} ⭐${extras.map(x => '<br>' + x).join('')}</div>
+        <div class="pp-sub">${gained ? `+${gained} ⭐` : ""}${extras.map(x => '<br>' + x).join('')}</div>
         ${explain ? `<div class="pp-explain">💡 ${esc(explain)}</div>` : ''}
         <button class="big-btn green" data-m="next">${t('next')}</button>`, onNext);
       if (autoMs && !explain) {
@@ -398,7 +398,7 @@
       const p = me(); if (!p) return go('profiles');
       const st = p.diff.mesekeszito || { level: GJ.levelForProfile(p), timed: false };
       story = { level: st.level, timedAll: !!st.timed, hero: null, heroes: [], picked: [], friend: null, quest: null, node: null,
-        log: [], stars: 0, correct: 0, firstTry: 0, total: 0, startRank: GJ.rankFor(p.stars).cur, t0: Date.now() };
+        log: [], path: [], paid: new Set(), stars: 0, correct: 0, firstTry: 0, total: 0, startRank: GJ.rankFor(p.stars).cur, t0: Date.now() };
       GJ.track('jatek/mesekeszito');
       goNode('start');
     },
@@ -846,12 +846,19 @@
     return n.choose.map(o => ({ kind: 'go', e: o.e, img: o.img, label: L(o.label), go: o.go }));
   }
 
+  GJ.addTexts({
+    hu: { stBack: '⬅ Vissza az előző oldalra', stNoStarAgain: 'Ezért a feladatért már kaptál csillagot.' },
+    ro: { stBack: '⬅ Înapoi la pagina anterioară', stNoStarAgain: 'Pentru această sarcină ai primit deja stele.' },
+    en: { stBack: '⬅ Back to the previous page', stNoStarAgain: 'You already got stars for this task.' }
+  });
   function goNode(id) {
     if (!story) return;
     if (hook('gate', 'story').length) return;
     if (id.startsWith('@')) id = story.quest + '_' + id.slice(1);
     const n = ST().nodes[id];
     if (!n) { console.warn('Hiányzó mese-csomópont:', id); return go('home'); }
+    // visszalépéshez: az oldalra belépés előtti állapot
+    story.path.push({ node: id, logLen: story.log.length, sup: story.sup || 0, total: story.total, correct: story.correct, firstTry: story.firstTry, stars: story.stars });
     story.node = id; story.tries = 0; story.locked = false; story.task = null; story.ready = true;
     const art = nodeArt(id, n);
     story.text = fill(L(n.text)); story.art = art.e; story.img = art.img; story.imgs = art.imgs || null;
@@ -900,6 +907,7 @@
     } else {
       act = `<div class="center"><button class="big-btn green" data-act="stNext">${t('next')}</button></div>`;
     }
+    if (story.path.length > 1) act += `<div class="center st-back-row"><button class="big-btn blue small" data-act="stBack">${t('stBack')}</button></div>`;
     render(`<div class="screen story-screen">
       <div class="playbar">
         <button class="icon-btn" data-act="stQuit" aria-label="${t('quit')}">✖</button>
@@ -937,13 +945,15 @@
     story.locked = true; stopTimer();
     const first = story.tries === 0;
     story.correct++; if (first) story.firstTry++;
-    const fastB = story.timed ? 1 : 0;
-    const gained = (first ? 2 : 1) + fastB;
+    // ha visszalépés után újra ugyanazt a feladatot oldja meg, csillag már nem jár érte
+    const again = story.paid.has(story.node); story.paid.add(story.node);
+    const fastB = story.timed && !again ? 1 : 0;
+    const gained = again ? 0 : (first ? 2 : 1) + fastB;
     story.stars += gained;
     const p = addStars(gained, 1);
     GJ.sfx('correct'); GJ.confetti(...centerOf(el), 60);
     const n = ST().nodes[story.node], s = story;
-    praiseModal(GJ.praise(p && p.name, first), gained, fastB ? [t('fastBonus')] : [], story.task.explain,
+    praiseModal(GJ.praise(p && p.name, first), gained, again ? [t('stNoStarAgain')] : fastB ? [t('fastBonus')] : [], story.task.explain,
       () => { if (story === s) goNode(n.right); }, 1700);
   }
   function storyFail() {
@@ -1099,6 +1109,17 @@
 
     /* mese */
     stNext() { const n = ST().nodes[story.node]; goNode(n.next); },
+    stBack() {
+      if (!story || story.path.length < 2) return;
+      stopTimer();
+      story.path.pop();                       // a mostani oldal
+      const prev = story.path.pop();          // az előző oldal belépési állapota
+      story.log.length = prev.logLen; story.sup = prev.sup;
+      story.total = prev.total; story.correct = prev.correct; story.firstTry = prev.firstTry; story.stars = prev.stars;
+      if (prev.node === 'start') { story.picked = (story.heroes || []).slice(); }
+      GJ.sfx('click');
+      goNode(prev.node);
+    },
     stToggle(b) {
       const k = b.dataset.k, sel = story.picked, i = sel.indexOf(k);
       if (i >= 0) { sel.splice(i, 1); GJ.sfx('click'); updatePicks(); return; }
