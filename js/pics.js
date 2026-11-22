@@ -127,6 +127,18 @@
     "🐺": 'img/pics/p123.webp',
     "☁️": 'img/pics/p124.webp',
     "🌲": 'img/pics/p125.webp',
-    "✨": 'img/pics/p126.webp'
+    "✨": 'img/pics/p126.webp',
+    "⏰": 'img/pics/p127.webp',
+    "🥔": 'img/pics/p128.webp',
+    "🏡": 'img/pics/p129.webp',
+    "🪣": 'img/pics/p130.webp',
+    "🧃": 'img/pics/p131.webp',
+    "🥐": 'img/pics/p132.webp',
+    "🖍️": 'img/pics/p133.webp',
+    "🖍": 'img/pics/p133.webp',
+    "📆": 'img/pics/p134.webp',
+    "🗓️": 'img/pics/p135.webp',
+    "🗓": 'img/pics/p135.webp',
+    "🎣": 'img/pics/p136.webp'
   });
 })();

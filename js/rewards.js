@@ -98,7 +98,8 @@
   /* Játékosfigurák rajzolt képe (a profilban az emoji tárolódik) */
   const AVATAR_IMG = {
     '🦄': 'unicorn', '🐱': 'cat', '🐶': 'dog', '🐰': 'bunny', '🦊': 'fox', '🐼': 'panda', '🐨': 'koala', '🐸': 'frog',
-    '🦁': 'lion', '🐯': 'tiger', '🐧': 'penguin', '🦉': 'owl', '🐻': 'bear', '🐵': 'monkey', '🐞': 'ladybird', '🦋': 'butterfly'
+    '🦁': 'lion', '🐯': 'tiger', '🐧': 'penguin', '🦉': 'owl', '🐻': 'bear', '🐵': 'monkey', '🐞': 'ladybird', '🦋': 'butterfly',
+    '🙂': 'guest1', '😎': 'guest2'   // párbaj vendégfigurái
   };
   GJ.avatarImg = e => (AVATAR_IMG[e] ? `img/avatars/${AVATAR_IMG[e]}.webp` : null);
   GJ.avatarHTML = (e, cls = 'av-img') => {
