@@ -1,9 +1,11 @@
 /* Okos Kaland – service worker (automatikusan generálva: node tools/build-sw.js) */
-const CACHE = 'okos-kaland-202611220757';
+const CACHE = 'okos-kaland-202611220811';
 const FILES = ["./index.html",
+  "./hu.html",
   "./ro.html",
   "./en.html",
   "./manifest.webmanifest",
+  "./manifest-hu.webmanifest",
   "./manifest-ro.webmanifest",
   "./manifest-en.webmanifest",
   "./favicon.ico",
@@ -56,6 +58,7 @@ const FILES = ["./index.html",
   "./img/logo-ro.webp",
   "./img/og-en.jpg",
   "./img/og-hu.jpg",
+  "./img/og-multi.jpg",
   "./img/og-ro.jpg",
   "./img/pics/p000.webp",
   "./img/pics/p001.webp",

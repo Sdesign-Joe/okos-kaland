@@ -1,0 +1,38 @@
+{
+  "name": "Okos Kaland",
+  "short_name": "Okos Kaland",
+  "description": "Játékos tanulás 7–9 éveseknek: matek, nyelvtan, mesék és versek – magyarul, románul és angolul.",
+  "lang": "hu",
+  "start_url": "./hu.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fdf3e7",
+  "theme_color": "#0e788c",
+  "categories": [
+    "education",
+    "kids",
+    "games"
+  ],
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./hu.html"
+}

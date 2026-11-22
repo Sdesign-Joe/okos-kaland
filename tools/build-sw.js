@@ -10,6 +10,10 @@ const root = path.join(__dirname, '..');
  * Az aldomainek (pl. aventuraisteata.bimpex.ro) ezekre mutathatnak – lásd .htaccess. */
 const SITE = 'https://sdesign-joe.github.io/okos-kaland/';
 const PAGES = {
+  hu: { name: 'Okos Kaland', locale: 'hu_HU',
+    title: 'Okos Kaland – játékos tanulás 7–9 éveseknek',
+    desc: 'Matek, nyelvtan és mesék egyetlen játékban – magyarul, románul és angolul. Ingyenes, reklám és regisztráció nélkül.',
+    mdesc: 'Játékos tanulás 7–9 éveseknek: matek, nyelvtan, mesék és versek – magyarul, románul és angolul.' },
   ro: { name: 'Aventura Isteață', locale: 'ro_RO',
     title: 'Aventura Isteață – învățare prin joacă pentru copii de 7–9 ani',
     desc: 'Matematică, limbă și povești într-un singur joc – în română, maghiară și engleză. Gratuit, fără reclame și fără cont.',
@@ -46,7 +50,7 @@ for (const [l, P] of Object.entries(PAGES)) {
   fs.writeFileSync(path.join(root, `manifest-${l}.webmanifest`), JSON.stringify(m, null, 2) + '\n');
 }
 
-const INCLUDE = ['index.html', 'ro.html', 'en.html', 'manifest.webmanifest', 'manifest-ro.webmanifest', 'manifest-en.webmanifest', 'favicon.ico', 'css', 'js', 'img'];
+const INCLUDE = ['index.html', 'hu.html', 'ro.html', 'en.html', 'manifest.webmanifest', 'manifest-hu.webmanifest', 'manifest-ro.webmanifest', 'manifest-en.webmanifest', 'favicon.ico', 'css', 'js', 'img'];
 const files = [];
 function walk(rel) {
   const abs = path.join(root, rel);
