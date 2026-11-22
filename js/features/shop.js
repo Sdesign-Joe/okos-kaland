@@ -11,15 +11,15 @@
 
   GJ.addTexts({
     hu: { shopBtn: '🛍️ Csillagbolt', shopT: '🛍️ Csillagbolt', shopLead: 'Válts be csillagokat! A rangod nem csökken, csak a költhető csillagaid.',
-      shopBal: 'Költhető: {n} ⭐', shopThemes: '🎨 Hátterek', shopOwl: '🦉 Bagolyruhák', shopAv: '🐾 Új figurák',
+      shopBal: 'Költhető: {n} ⭐', shopThemes: '🎨 Hátterek', shopOwl: '🦉 Bagolyruhák', shopAv: '🐾 Új figurák', shopFit: '👕 Figuraruhák', shopFitNone: 'Ruha nélkül', shopFitNeed: 'Előbb vegyél egy figurát az „Új figurák” fülön, aztán öltöztesd fel! 🐾',
       shopBuy: 'Megveszem', shopUse: 'Ezt kérem', shopOn: '✔ Használatban', shopNeed: 'Még {n} ⭐ kell', shopBought: 'Megvetted: {x}! 🎉',
       shopAsk: 'Megveszed ezt: {x}, {n} csillagért?', shopNo: 'Mégse', shopSoon: 'Hamarosan új ruhák és figurák érkeznek! ✨' },
     ro: { shopBtn: '🛍️ Magazinul de stele', shopT: '🛍️ Magazinul de stele', shopLead: 'Schimbă stelele pe surprize! Rangul tău nu scade, doar stelele de cheltuit.',
-      shopBal: 'De cheltuit: {n} ⭐', shopThemes: '🎨 Fundaluri', shopOwl: '🦉 Haine pentru bufniță', shopAv: '🐾 Personaje noi',
+      shopBal: 'De cheltuit: {n} ⭐', shopThemes: '🎨 Fundaluri', shopOwl: '🦉 Haine pentru bufniță', shopAv: '🐾 Personaje noi', shopFit: '👕 Haine pentru personaj', shopFitNone: 'Fără haine', shopFitNeed: 'Mai întâi cumpără un personaj la „Personaje noi”, apoi îmbracă-l! 🐾',
       shopBuy: 'Cumpăr', shopUse: 'Vreau asta', shopOn: '✔ Folosit', shopNeed: 'Mai trebuie {n} ⭐', shopBought: 'Ai cumpărat: {x}! 🎉',
       shopAsk: 'Cumperi {x} pentru {n} stele?', shopNo: 'Renunț', shopSoon: 'În curând vin haine și personaje noi! ✨' },
     en: { shopBtn: '🛍️ Star shop', shopT: '🛍️ Star shop', shopLead: 'Swap your stars for treats! Your rank doesn’t go down, only your spendable stars.',
-      shopBal: 'To spend: {n} ⭐', shopThemes: '🎨 Backgrounds', shopOwl: '🦉 Owl outfits', shopAv: '🐾 New characters',
+      shopBal: 'To spend: {n} ⭐', shopThemes: '🎨 Backgrounds', shopOwl: '🦉 Owl outfits', shopAv: '🐾 New characters', shopFit: '👕 Character outfits', shopFitNone: 'No outfit', shopFitNeed: 'First buy a character in “New characters”, then dress it up! 🐾',
       shopBuy: 'Buy', shopUse: 'Use this', shopOn: '✔ In use', shopNeed: '{n} more ⭐ needed', shopBought: 'You bought: {x}! 🎉',
       shopAsk: 'Buy {x} for {n} stars?', shopNo: 'Cancel', shopSoon: 'New outfits and characters are coming soon! ✨' }
   });
@@ -58,12 +58,18 @@
       { id: 'dragon', price: 100, n: { hu: 'Sárkány', ro: 'Dragon', en: 'Dragon' } }
     ]
   };
-  const CATS = [['theme', 'shopThemes'], ['owl', 'shopOwl'], ['avatar', 'shopAv']];
-  const itemImg = (cat, it) => (cat === 'owl' ? `img/shop/owl-${it.id}.webp` : cat === 'avatar' ? `img/shop/av-${it.id}.webp` : null);
+  const CATS = [['theme', 'shopThemes'], ['owl', 'shopOwl'], ['avatar', 'shopAv'], ['fit', 'shopFit']];
+  /* Figuraruhák: ugyanaz a 8 ruha, mint a baglyon, minden megvett figurához külön (img/shop/av-<figura>-<ruha>.webp).
+   * A profil avatarja ilyenkor 'p:<figura>-<ruha>'. Tulajdon: owned.fit = ['hedgehog-crown', …]; utolsó ruha figuránként: equip.fit[<figura>]. */
+  const figOf = p => { const a = String(p.avatar || ''); return a.startsWith('p:') ? a.slice(2).split('-')[0] : null; };
+  const fitOf = p => { const a = String(p.avatar || ''); return a.startsWith('p:') ? (a.slice(2).split('-')[1] || 'none') : null; };
+  const fitList = fig => [{ id: 'none', price: 0, n: { hu: t('shopFitNone'), ro: t('shopFitNone'), en: t('shopFitNone') } }].concat(SHOP.owl);
+  const itemImg = (cat, it, fig) => (cat === 'owl' ? `img/shop/owl-${it.id}.webp` : cat === 'avatar' ? `img/shop/av-${it.id}.webp`
+    : cat === 'fit' ? `img/shop/av-${fig}${it.id === 'none' ? '' : '-' + it.id}.webp` : null);
 
   const me = () => S.current();
   const balance = p => Math.max(0, (p.stars || 0) - (p.spent || 0));
-  const owns = (p, cat, id) => id === 'base' || ((p.owned || {})[cat] || []).includes(id);
+  const owns = (p, cat, id) => id === 'base' || id === 'none' || ((p.owned || {})[cat] || []).includes(cat === 'fit' ? figOf(p) + '-' + id : id);
   const equipped = (p, cat) => (p.equip || {})[cat] || (cat === 'theme' ? 'base' : null);
 
   /* figurák: a profil avatarja lehet 'p:<id>' */
@@ -86,15 +92,16 @@
     const p = me(); if (!p) return A.go('profiles');
     applyTheme();
     tab = tab || 'theme';
-    const list = SHOP[tab] || [];
+    const fig = figOf(p);
+    const list = tab === 'fit' ? (fig ? fitList(fig) : []) : (SHOP[tab] || []);
     A.render(`<div class="screen">
       <div class="topbar"><button class="icon-btn" data-go="home" aria-label="${t('back')}">⬅</button>
         <h2>${t('shopT')}</h2><div class="pill star">${t('shopBal', { n: balance(p) })}</div></div>
       <p class="lead">${t('shopLead')}</p>
       <div class="tabs">${CATS.map(([k, n]) => `<button class="tab ${k === tab ? 'on' : ''}" data-go="shop" data-arg="${k}">${t(n)}</button>`).join('')}</div>
       ${list.length ? `<div class="shop-grid">${list.map((it, i) => {
-        const own = owns(p, tab, it.id), on = tab === 'avatar' ? p.avatar === 'p:' + it.id : equipped(p, tab) === it.id;
-        const img = itemImg(tab, it);
+        const own = owns(p, tab, it.id), on = tab === 'avatar' ? fig === it.id : tab === 'fit' ? fitOf(p) === it.id : equipped(p, tab) === it.id;
+        const img = itemImg(tab, it, fig);
         const art = img ? `<img class="shop-img" src="${img}" alt="">`
           : `<span class="shop-sw" style="background:linear-gradient(165deg,${it.sw.join(',')})"></span>`;
         const btn = on ? `<span class="shop-on">${t('shopOn')}</span>`
@@ -102,7 +109,7 @@
           : balance(p) >= it.price ? `<button class="mini-btn green" data-act="shopBuy" data-c="${tab}" data-id="${it.id}">${t('shopBuy')} · ${it.price} ⭐</button>`
           : `<span class="shop-need">${t('shopNeed', { n: it.price - balance(p) })}</span>`;
         return `<div class="shop-item pop ${on ? 'on' : ''}" style="animation-delay:${i * 40}ms">${art}<b>${esc(L(it.n))}</b>${btn}</div>`;
-      }).join('')}</div>` : `<div class="card center"><p class="lead">${t('shopSoon')}</p></div>`}
+      }).join('')}</div>` : `<div class="card center"><p class="lead">${t(tab === 'fit' ? 'shopFitNeed' : 'shopSoon')}</p></div>`}
     </div>`);
   };
 
@@ -110,18 +117,20 @@
     const p = me(); if (!p) return;
     S.update(p.id, x => {
       x.equip = x.equip || {};
-      if (cat === 'avatar') x.avatar = 'p:' + id; else x.equip[cat] = id;
+      if (cat === 'avatar') { const f = (x.equip.fit || {})[id]; x.avatar = 'p:' + id + (f && f !== 'none' ? '-' + f : ''); }
+      else if (cat === 'fit') { const fig = figOf(x); if (!fig) return; x.equip.fit = x.equip.fit || {}; x.equip.fit[fig] = id; x.avatar = 'p:' + fig + (id === 'none' ? '' : '-' + id); }
+      else x.equip[cat] = id;
     });
   }
   A.actions.shopBuy = b => {
-    const p = me(), cat = b.dataset.c, it = (SHOP[cat] || []).find(x => x.id === b.dataset.id);
+    const p = me(), cat = b.dataset.c, it = (cat === 'fit' ? SHOP.owl : SHOP[cat] || []).find(x => x.id === b.dataset.id);
     if (!p || !it || balance(p) < it.price) return;
     A.modal(`<p>${esc(t('shopAsk', { x: L(it.n), n: it.price }))}</p>
       <div class="row-btns"><button class="big-btn green small" data-m="ok">${t('shopBuy')}</button><button class="big-btn blue small" data-m="no">${t('shopNo')}</button></div>`, m => {
       if (m !== 'ok') return;
       S.update(p.id, x => {
         x.spent = (x.spent || 0) + it.price;
-        x.owned = x.owned || {}; x.owned[cat] = (x.owned[cat] || []).concat([it.id]);
+        x.owned = x.owned || {}; x.owned[cat] = (x.owned[cat] || []).concat([cat === 'fit' ? figOf(x) + '-' + it.id : it.id]);
       });
       equip(cat, it.id);
       GJ.sfx('sticker'); GJ.confetti(innerWidth / 2, innerHeight / 3, 80); GJ.toast(t('shopBought', { x: L(it.n) }));
