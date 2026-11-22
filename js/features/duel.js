@@ -12,7 +12,7 @@
     hu: { duelBtn: '⚔️ Párbaj', duelT: '⚔️ Párbaj', duelLead: 'Két játékos, egy készülék: felváltva válaszoltok. Mindenki a saját szintjén kap feladatot!',
       duelP1: '1. játékos', duelP2: '2. játékos', duelGuest: 'Vendég', duelSubj: 'Miből?', duelMix: '🎲 Vegyes', duelN: 'Hány kérdés fejenként?',
       duelGo: '⚔️ Indulhat!', duelSame: 'Válassz két különböző játékost!', duelTurn: '{n} következik!', duelRight: 'Ügyes, {n}! +1 pont', duelWrong: 'Most nem talált. A helyes: {a}',
-      duelGName: 'A vendég neve', duelGNamePh: 'Pl. Peti', duelGGrade: 'Korosztály',
+      duelAdd: 'Új játékos', duelGName: 'A vendég neve', duelGNamePh: 'Pl. Peti', duelGGrade: 'Korosztály',
       duelRoundEnd: '{r}. forduló vége', duelScore: '{a} : {b}', duelStanding: 'Győzelmek eddig: {a} : {b}',
       duelAgain: '🔁 Visszavágó', duelCeremonyBtn: '🏆 Eredményhirdetés', duelCeremony: '🏆 Eredményhirdetés',
       duelChamp: 'A párbaj győztese:', duelTie: '🤝 Döntetlen! Mindketten nagyon ügyesek voltatok!',
@@ -24,7 +24,7 @@
     ro: { duelBtn: '⚔️ Duel', duelT: '⚔️ Duel', duelLead: 'Doi jucători, un dispozitiv: răspundeți pe rând. Fiecare primește sarcini la nivelul lui!',
       duelP1: 'Jucătorul 1', duelP2: 'Jucătorul 2', duelGuest: 'Musafir', duelSubj: 'Din ce?', duelMix: '🎲 Amestecat', duelN: 'Câte întrebări de fiecare?',
       duelGo: '⚔️ Începem!', duelSame: 'Alege doi jucători diferiți!', duelTurn: 'Urmează {n}!', duelRight: 'Bravo, {n}! +1 punct', duelWrong: 'De data asta nu. Corect era: {a}',
-      duelGName: 'Numele musafirului', duelGNamePh: 'De ex. Andrei', duelGGrade: 'Vârsta / clasa',
+      duelAdd: 'Jucător nou', duelGName: 'Numele musafirului', duelGNamePh: 'De ex. Andrei', duelGGrade: 'Vârsta / clasa',
       duelRoundEnd: 'Sfârșitul rundei {r}', duelScore: '{a} : {b}', duelStanding: 'Victorii până acum: {a} : {b}',
       duelAgain: '🔁 Revanșa', duelCeremonyBtn: '🏆 Festivitatea de premiere', duelCeremony: '🏆 Festivitatea de premiere',
       duelChamp: 'Câștigătorul duelului:', duelTie: '🤝 Egalitate! Amândoi ați fost foarte buni!',
@@ -36,7 +36,7 @@
     en: { duelBtn: '⚔️ Duel', duelT: '⚔️ Duel', duelLead: 'Two players, one device: take turns to answer. Everyone gets tasks at their own level!',
       duelP1: 'Player 1', duelP2: 'Player 2', duelGuest: 'Guest', duelSubj: 'Which subject?', duelMix: '🎲 Mixed', duelN: 'Questions each?',
       duelGo: '⚔️ Let’s go!', duelSame: 'Choose two different players!', duelTurn: '{n}, it’s your turn!', duelRight: 'Well done, {n}! +1 point', duelWrong: 'Not this time. The answer was: {a}',
-      duelGName: 'Guest’s name', duelGNamePh: 'e.g. Sam', duelGGrade: 'Age group',
+      duelAdd: 'New player', duelGName: 'Guest’s name', duelGNamePh: 'e.g. Sam', duelGGrade: 'Age group',
       duelRoundEnd: 'End of round {r}', duelScore: '{a} : {b}', duelStanding: 'Wins so far: {a} : {b}',
       duelAgain: '🔁 Rematch', duelCeremonyBtn: '🏆 Award ceremony', duelCeremony: '🏆 Award ceremony',
       duelChamp: 'The winner of the duel:', duelTie: '🤝 It’s a draw! You were both brilliant!',
@@ -68,10 +68,22 @@
     if (GJ.stopSpeak) GJ.stopSpeak();
     duel = null;
     const ps = players(), cur = S.current();
-    if (!cfg) cfg = { p1: cur ? cur.id : (ps[0] && ps[0].id), p2: (ps.find(p => !cur || p.id !== cur.id) || { id: GUEST }).id, subj: 'mix', n: 5,
+    if (!cfg) cfg = { auto1: true, auto2: true, subj: 'mix', n: 5,
       guest: { p1: { name: '', grade: 2 }, p2: { name: '', grade: cur ? GJ.gradeOf(cur) : 2 } } };
+    // a játékoslista mindig friss: törölt játékos helyére új választás, az automatikus választás követi az újonnan regisztráltakat
+    const has = id => id === GUEST || ps.some(p => p.id === id);
+    if (GJ.pfNew && ps.some(p => p.id === GJ.pfNew)) {
+      const k = cfg.p1 === GJ.pfNew ? null : (cfg.pickFor || 'p2');
+      if (k) { cfg[k] = GJ.pfNew; cfg['auto' + k.slice(1)] = false; }
+    }
+    GJ.pfNew = null; GJ.pfReturn = null; cfg.pickFor = null;
+    if (cfg.auto1 || !has(cfg.p1)) { cfg.p1 = cur ? cur.id : (ps[0] ? ps[0].id : GUEST); cfg.auto1 = true; }
+    if (cfg.auto2 || !has(cfg.p2) || (cfg.p2 === cfg.p1 && cfg.p1 !== GUEST)) {
+      cfg.p2 = (ps.find(p => p.id !== cfg.p1) || { id: GUEST }).id; cfg.auto2 = true;
+    }
     const chips = (k) => ps.concat([{ id: GUEST, name: t('duelGuest'), avatar: GUEST_AV[k] }]).map(p =>
-      `<button class="duel-pick ${cfg[k] === p.id ? 'on' : ''}" data-act="duelPick" data-k="${k}" data-v="${esc(p.id)}"><span class="dp-av">${avHTML(p)}</span><small>${esc(p.name)}</small></button>`).join('');
+      `<button class="duel-pick ${cfg[k] === p.id ? 'on' : ''}" data-act="duelPick" data-k="${k}" data-v="${esc(p.id)}"><span class="dp-av">${avHTML(p)}</span><small>${esc(p.name)}</small></button>`).join('')
+      + `<button class="duel-pick add" data-act="duelAddPlayer" data-k="${k}"><span class="dp-av">➕</span><small>${esc(t('duelAdd'))}</small></button>`;
     const guestBox = k => cfg[k] !== GUEST ? '' : `<div class="duel-guest">
         <label class="lbl" for="dg-name-${k}">${t('duelGName')}</label>
         <input id="dg-name-${k}" class="txt" maxlength="20" value="${esc(cfg.guest[k].name)}" placeholder="${esc(t('duelGNamePh'))}" autocomplete="off">
@@ -90,7 +102,9 @@
         <button class="big-btn green wide" data-act="duelStart">${t('duelGo')}</button>
       </div></div>`);
   };
-  A.actions.duelPick = b => { readGuestInputs(); cfg[b.dataset.k] = b.dataset.v; GJ.sfx('click'); A.go('duel'); };
+  A.actions.duelPick = b => { readGuestInputs(); const k = b.dataset.k; cfg[k] = b.dataset.v; cfg['auto' + k.slice(1)] = false; GJ.sfx('click'); A.go('duel'); };
+  /** Új játékos regisztrálása a párbajból: utána visszajövünk, és ő lesz kiválasztva ezen a helyen. */
+  A.actions.duelAddPlayer = b => { readGuestInputs(); cfg.pickFor = b.dataset.k; GJ.pfReturn = 'duel'; GJ.sfx('click'); A.go('editProfile'); };
   A.actions.duelGrade = b => { readGuestInputs(); cfg.guest[b.dataset.k].grade = +b.dataset.v; GJ.sfx('click'); A.go('duel'); };
   A.actions.duelSubj = b => { readGuestInputs(); cfg.subj = b.dataset.v; GJ.sfx('click'); A.go('duel'); };
   A.actions.duelN = b => { readGuestInputs(); cfg.n = +b.dataset.v; GJ.sfx('click'); A.go('duel'); };

@@ -821,6 +821,8 @@ html[data-theme="mint"]   { --bg1: #c3fae8; --bg2: #e6fcf5; --bg3: #fff5f5; }
 .duel-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
 .duel-pick { border: 0; background: #fff; border-radius: 16px; box-shadow: var(--lift); padding: 8px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; font: inherit; color: var(--ink); cursor: pointer; min-width: 76px; }
 .duel-pick.on { outline: 4px solid var(--green); }
+.duel-pick.add { background: #f3f0ff; border: 2px dashed #b197fc; box-shadow: none; }
+.duel-pick.add .dp-av { background: #fff; font-size: 26px; }
 .dp-av { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; font-size: 32px; background: #f3eeff; }
 .dp-av.big { width: 84px; height: 84px; font-size: 56px; }
 .duel-board { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 6px 0; }

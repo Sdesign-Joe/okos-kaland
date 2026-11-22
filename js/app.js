@@ -264,7 +264,7 @@
         avatar: p ? p.avatar : pick(AVATARS), color: p ? p.color : pick(COLORS) };
       render(`<div class="screen narrow">
         <div class="topbar">
-          <button class="icon-btn" data-go="${id ? 'parent' : 'profiles'}" aria-label="${t('back')}">⬅</button>
+          <button class="icon-btn" data-go="${id ? 'parent' : (GJ.pfReturn || 'profiles')}" aria-label="${t('back')}">⬅</button>
           <h2>${p ? t('editPlayer') : t('newPlayer')}</h2>
         </div>
         <div class="card form">
@@ -1053,8 +1053,12 @@
       const data = { name, age: form.age, avatar: form.avatar, color: form.color, grade: form.grade == null ? GJ.gradeForAge(form.age) : form.grade };
       if (form.id) { S.update(form.id, p => Object.assign(p, data)); go('parent', 'players'); }
       else {
-        const p = S.add(data); S.setCurrent(p.id);
+        const ret = GJ.pfReturn; GJ.pfReturn = null;
+        const p = S.add(data);
         GJ.sfx('sticker'); GJ.confetti(innerWidth / 2, innerHeight / 3, 90);
+        // pl. a párbajból indított regisztráció: oda térünk vissza, az aktuális játékos marad
+        if (ret && S.current()) { GJ.pfNew = p.id; go(ret); return; }
+        S.setCurrent(p.id);
         go('home');
       }
     },
